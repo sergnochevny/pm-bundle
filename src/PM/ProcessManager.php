@@ -428,7 +428,7 @@ class ProcessManager{
         }
 
         $executableFinder = new PhpExecutableFinder();
-        if (false === $phpCgiExecutable = $executableFinder->find(false)) {
+        if(false === $phpCgiExecutable = $executableFinder->find(false)) {
             $phpCgiExecutable = $this->phpCgiExecutable;
         }
 
@@ -494,8 +494,9 @@ class ProcessManager{
         foreach($this->slaves->getByStatus(Slave::ANY) as $slave) {
             $this->terminateSlave($slave);
         }
-
-        unlink($this->pidfile);
+        if(file_exists($this->pidfile)) {
+            unlink($this->pidfile);
+        }
         exit;
     }
 
