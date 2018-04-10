@@ -24,7 +24,7 @@ namespace Teknoo\Tests\ReactPHPBundle;
 
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Teknoo\ReactPHPBundle\Doctrine\ConnectionFactory;
+use PMB\PMBundle\Doctrine\ConnectionFactory;
 
 /**
  * Class ConnectionFactoryTest.
@@ -36,7 +36,7 @@ use Teknoo\ReactPHPBundle\Doctrine\ConnectionFactory;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \Teknoo\ReactPHPBundle\Doctrine\ConnectionFactory
+ * @covers \PMB\PMBundle\Doctrine\ConnectionFactory
  */
 class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
 {

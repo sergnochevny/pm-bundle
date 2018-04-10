@@ -26,9 +26,9 @@ use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Teknoo\ReactPHPBundle\Bridge\RequestListener;
-use Teknoo\ReactPHPBundle\Command\ReactPHPCommand;
-use Teknoo\ReactPHPBundle\Logger\StdLogger;
+use PMB\PMBundle\Bridge\RequestListener;
+use PMB\PMBundle\Command\ReactPHPCommand;
+use PMB\PMBundle\Logger\StdLogger;
 
 /**
  * Class RequestBridgeTest.
@@ -40,7 +40,7 @@ use Teknoo\ReactPHPBundle\Logger\StdLogger;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \Teknoo\ReactPHPBundle\Command\ReactPHPCommand
+ * @covers \PMB\PMBundle\Command\ReactPHPCommand
  */
 class ReactPHPCommandTest extends \PHPUnit_Framework_TestCase
 {

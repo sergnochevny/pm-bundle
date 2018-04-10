@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Teknoo\ReactPHPBundle\Doctrine;
+namespace PMB\PMBundle\Doctrine;
 
 use Doctrine\Bundle\DoctrineBundle\ConnectionFactory as DoctrineConnectionFactory;
 use Doctrine\Common\EventManager;

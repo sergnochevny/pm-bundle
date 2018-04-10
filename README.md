@@ -34,9 +34,9 @@ Via a PHP file :
     use React\EventLoop\Factory as LoopFactory;
     use React\Socket\Server as SocketServer;
     use React\Http\Server as HttpServer;
-    use Teknoo\ReactPHPBundle\Bridge\RequestBridge;
-    use Teknoo\ReactPHPBundle\Bridge\RequestListener;
-    use Teknoo\ReactPHPBundle\Service\DatesService;
+    use PMB\PMBundle\Bridge\RequestBridge;
+    use PMB\PMBundle\Bridge\RequestListener;
+    use PMB\PMBundle\Service\DatesService;
     use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
     use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 

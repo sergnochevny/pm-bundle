@@ -22,7 +22,7 @@
 
 namespace Teknoo\Tests\ReactPHPBundle\Service;
 
-use Teknoo\ReactPHPBundle\Service\DatesService;
+use PMB\PMBundle\Service\DatesService;
 
 /**
  * Class RequestBridgeTest.
@@ -34,7 +34,7 @@ use Teknoo\ReactPHPBundle\Service\DatesService;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \Teknoo\ReactPHPBundle\Service\DatesService
+ * @covers \PMB\PMBundle\Service\DatesService
  */
 class DatesServiceTest extends \PHPUnit_Framework_TestCase
 {

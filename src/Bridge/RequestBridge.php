@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Teknoo\ReactPHPBundle\Bridge;
+namespace PMB\PMBundle\Bridge;
 
 use Psr\Log\LoggerInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -32,7 +32,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\HttpKernel\TerminableInterface;
-use Teknoo\ReactPHPBundle\Service\DatesService;
+use PMB\PMBundle\Service\DatesService;
 
 /**
  * Class RequestBridge.
@@ -52,13 +52,6 @@ class RequestBridge
      * @var KernelInterface
      */
     protected $kernel;
-
-    /**
-     * To retriave \DateTime to use for log.
-     *
-     * @var DatesService
-     */
-    protected $datesService;
 
     /**
      * To convert PSR7 Request to Symfony Request.
@@ -85,18 +78,15 @@ class RequestBridge
      * RequestBridge constructor.
      *
      * @param KernelInterface                $kernel
-     * @param DatesService                   $datesService
      * @param HttpFoundationFactoryInterface $foundationFactory
      * @param DiactorosFactory               $diactorosFactory
      */
     public function __construct(
         KernelInterface $kernel,
-        DatesService $datesService,
         HttpFoundationFactoryInterface  $foundationFactory,
         DiactorosFactory $diactorosFactory
     ) {
         $this->kernel = $kernel;
-        $this->datesService = $datesService;
         $this->httpFoundationFcty = $foundationFactory;
         $this->diactorosFactory = $diactorosFactory;
     }
@@ -153,12 +143,10 @@ class RequestBridge
             return;
         }
 
-        $date = $this->datesService->getNow();
-
         $message = \sprintf(
             '%s - [%s] "%s %s" %s %s',
             $request->getClientIp(),
-            $date->format('d/M/Y H:i:s O'),
+            date('d/M/Y H:i:s O'),
             $request->getRealMethod(),
             $request->getUri(),
             $response->getStatusCode(),
@@ -181,14 +169,12 @@ class RequestBridge
             return;
         }
 
-        $date = $this->datesService->getNow();
-
         $server = $request->getServerParams();
 
         $message = \sprintf(
             '%s - [%] %s in %s (%s)',
             $server['REMOTE_ADDR'],
-            $date->format('d/M/Y H:i:s O'),
+            date('d/M/Y H:i:s O'),
             $error->getMessage(),
             $error->getFile(),
             $error->getLine()

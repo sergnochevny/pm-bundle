@@ -20,11 +20,11 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Teknoo\ReactPHPBundle;
+namespace PMB\PMBundle;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Teknoo\ReactPHPBundle\DependencyInjection\DoctrineCompilerPass;
+use PMB\PMBundle\DependencyInjection\DoctrineCompilerPass;
 
 /**
  * Class ReactPHPBundle.
@@ -36,7 +36,7 @@ use Teknoo\ReactPHPBundle\DependencyInjection\DoctrineCompilerPass;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
-class ReactPHPBundle extends Bundle
+class PMBundle extends Bundle
 {
     /**
      * To enable Compiler pass to register Request Parser entities into Request Builder

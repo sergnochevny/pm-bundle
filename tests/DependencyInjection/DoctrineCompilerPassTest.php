@@ -23,7 +23,7 @@
 namespace Teknoo\Tests\ReactPHPBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Teknoo\ReactPHPBundle\DependencyInjection\DoctrineCompilerPass;
+use PMB\PMBundle\DependencyInjection\DoctrineCompilerPass;
 
 /**
  * Class ConfigurationTest.
@@ -35,7 +35,7 @@ use Teknoo\ReactPHPBundle\DependencyInjection\DoctrineCompilerPass;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \Teknoo\ReactPHPBundle\DependencyInjection\DoctrineCompilerPass
+ * @covers \PMB\PMBundle\DependencyInjection\DoctrineCompilerPass
  */
 class DoctrineCompilerPassTest extends \PHPUnit_Framework_TestCase
 {

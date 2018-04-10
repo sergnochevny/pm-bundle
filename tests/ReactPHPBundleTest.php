@@ -23,7 +23,7 @@
 namespace Teknoo\Tests\ReactPHPBundle;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Teknoo\ReactPHPBundle\ReactPHPBundle;
+use PMB\PMBundle\PMBundle;
 
 /**
  * Class ConfigurationTest.
@@ -35,13 +35,13 @@ use Teknoo\ReactPHPBundle\ReactPHPBundle;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \Teknoo\ReactPHPBundle\ReactPHPBundle
+ * @covers \PMB\PMBundle\PMBundle
  */
 class ReactPHPBundleTest extends \PHPUnit_Framework_TestCase
 {
     public function buildBundle()
     {
-        return new ReactPHPBundle();
+        return new PMBundle();
     }
 
     public function testBuild()

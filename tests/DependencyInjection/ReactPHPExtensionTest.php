@@ -23,7 +23,7 @@
 namespace Teknoo\Tests\ReactPHPBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Teknoo\ReactPHPBundle\DependencyInjection\ReactPHPExtension;
+use PMB\PMBundle\DependencyInjection\ReactPHPExtension;
 
 /**
  * Class ReactPHPExtensionTest.
@@ -35,7 +35,7 @@ use Teknoo\ReactPHPBundle\DependencyInjection\ReactPHPExtension;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \Teknoo\ReactPHPBundle\DependencyInjection\ReactPHPExtension
+ * @covers \PMB\PMBundle\DependencyInjection\ReactPHPExtension
  */
 class ReactPHPExtensionTest extends \PHPUnit_Framework_TestCase
 {

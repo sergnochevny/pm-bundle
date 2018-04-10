@@ -23,7 +23,7 @@
 namespace Teknoo\Tests\ReactPHPBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Teknoo\ReactPHPBundle\DependencyInjection\Configuration;
+use PMB\PMBundle\DependencyInjection\Configuration;
 
 /**
  * Class ConfigurationTest.
@@ -35,7 +35,7 @@ use Teknoo\ReactPHPBundle\DependencyInjection\Configuration;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \Teknoo\ReactPHPBundle\DependencyInjection\Configuration
+ * @covers \PMB\PMBundle\DependencyInjection\Configuration
  */
 class ConfigurationTest extends \PHPUnit_Framework_TestCase
 {

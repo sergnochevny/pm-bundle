@@ -25,7 +25,7 @@ namespace Teknoo\Tests\ReactPHPBundle;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Teknoo\ReactPHPBundle\Logger\StdLogger;
+use PMB\PMBundle\Logger\StdLogger;
 
 /**
  * Class RequestBridgeTest.
@@ -37,7 +37,7 @@ use Teknoo\ReactPHPBundle\Logger\StdLogger;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \Teknoo\ReactPHPBundle\Logger\StdLogger
+ * @covers \PMB\PMBundle\Logger\StdLogger
  */
 class StdLoggerTest extends \PHPUnit_Framework_TestCase
 {

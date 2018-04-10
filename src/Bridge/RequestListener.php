@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Teknoo\ReactPHPBundle\Bridge;
+namespace PMB\PMBundle\Bridge;
 
 use Psr\Http\Message\ServerRequestInterface;
 use React\Promise\Promise;

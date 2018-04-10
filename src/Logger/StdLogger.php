@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Teknoo\ReactPHPBundle\Logger;
+namespace PMB\PMBundle\Logger;
 
 use Psr\Log\AbstractLogger;
 use Psr\Log\LogLevel;
