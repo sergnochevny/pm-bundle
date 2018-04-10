@@ -317,6 +317,7 @@ class ProcessManager{
             $slave = $this->slaves->getByConnection($conn);
         } catch(\Exception $e) {
             $this->output->writeln($e->getMessage());
+
             return;
         }
 
@@ -435,14 +436,14 @@ class ProcessManager{
         }
 
         // slave php file
-        $file = getcwd() . "/bin/console2 pmb:slave --port " . $port;
+        $file = getcwd() . "/bin/console pmb:slave --port " . $port . " " . getcwd();
 
         //For version 2.x and 3.x of \Symfony\Component\Process\Process package
         if(method_exists('\Symfony\Component\Process\ProcessUtils', 'escapeArgument')) {
-            $commandline = 'exec ' . $phpCgiExecutable . ' -C ' . ProcessUtils::escapeArgument($file);
+            $commandline = 'exec ' . $phpCgiExecutable . ' ' . ProcessUtils::escapeArgument($file);
         } else {
             //For version 4.x of \Symfony\Component\Process\Process package
-            $commandline = ['exec', $phpCgiExecutable, '-C', $file];
+            $commandline = ['exec', $phpCgiExecutable, $file];
             $processInstance = new \Symfony\Component\Process\Process($commandline);
             $commandline = $processInstance->getCommandLine();
         }
