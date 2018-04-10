@@ -56,7 +56,6 @@ class SlaveCommand extends ContainerAwareCommand{
         if (!pcntl_enabled()) {
             throw new \RuntimeException('Some of required pcntl functions are disabled. Check `disable_functions` setting in `php.ini`.');
         }
-        set_time_limit(0);
 
         $config = $this->initializeConfig($input, $output);
 

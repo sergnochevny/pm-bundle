@@ -28,7 +28,6 @@ class BufferingLogger extends AbstractLogger
      */
     public static function create()
     {
-        var_dump(class_exists('\Symfony\Component\Debug\BufferingLogger'));
         if (class_exists('\Symfony\Component\Debug\BufferingLogger')) {
             return new SymfonyBufferingLogger();
         }

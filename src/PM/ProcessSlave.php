@@ -97,7 +97,6 @@ class ProcessSlave{
         $this->setSocketScheme($config['socket-scheme']);
 
         $this->config = $config;
-        var_dump($config);
     }
 
     /**
@@ -105,6 +104,7 @@ class ProcessSlave{
      *
      */
     protected function bootstrap(){
+        var_dump($this->controller);
         $this->sendMessage($this->controller, 'ready');
     }
 

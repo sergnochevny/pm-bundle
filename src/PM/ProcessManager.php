@@ -314,7 +314,9 @@ class ProcessManager{
     protected function commandReady(array $data, ConnectionInterface $conn){
         try {
             $slave = $this->slaves->getByConnection($conn);
+            var_dump($slave);
         } catch(\Exception $e) {
+            $this->output->writeln($e->getMessage());
             return;
         }
 
@@ -563,7 +565,6 @@ class ProcessManager{
     /**
      * Starts the main loop. Blocks.
      * @throws \ReflectionException
-     * @throws \Symfony\Component\Process\Exception\RuntimeException
      * @throws \RuntimeException
      */
     public function run(){
