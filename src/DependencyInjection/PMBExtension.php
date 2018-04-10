@@ -39,12 +39,12 @@ use Symfony\Component\DependencyInjection\Loader;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
-class PMExtension extends Extension
+class PMBExtension extends Extension
 {
     /**
      * {@inheritdoc}
      */
-    public function load(array $configs, ContainerBuilder $container): PMExtension
+    public function load(array $configs, ContainerBuilder $container): PMBExtension
     {
         $configuration = new Configuration();
         $this->processConfiguration($configuration, $configs);

@@ -46,7 +46,7 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder();
-        $treeBuilder->root('pm_bundle');
+        $treeBuilder->root('pmb');
 
         return $treeBuilder;
     }
