@@ -104,7 +104,6 @@ class ProcessSlave{
      *
      */
     protected function bootstrap(){
-        var_dump($this->controller);
         $this->sendMessage($this->controller, 'ready');
     }
 
