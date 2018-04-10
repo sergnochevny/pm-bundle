@@ -435,7 +435,7 @@ class ProcessManager{
         }
 
         // slave php file
-        $file = getcwd() . "bin/console pmb:slave --port " . $port;
+        $file = getcwd() . "/bin/console pmb:slave --port " . $port;
 
         //For version 2.x and 3.x of \Symfony\Component\Process\Process package
         if(method_exists('\Symfony\Component\Process\ProcessUtils', 'escapeArgument')) {
