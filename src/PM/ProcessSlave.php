@@ -97,10 +97,7 @@ class ProcessSlave{
         $this->setSocketScheme($config['socket-scheme']);
 
         $this->config = $config;
-
-        if($this->config['session_path']) {
-            session_save_path($this->config['session_path']);
-        }
+        var_dump($config);
     }
 
     /**
