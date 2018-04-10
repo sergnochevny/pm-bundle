@@ -313,8 +313,8 @@ class ProcessManager{
      */
     protected function commandReady(array $data, ConnectionInterface $conn){
         try {
+            var_dump($conn);
             $slave = $this->slaves->getByConnection($conn);
-            var_dump($slave);
         } catch(\Exception $e) {
             $this->output->writeln($e->getMessage());
             return;
@@ -447,6 +447,7 @@ class ProcessManager{
             $commandline = $processInstance->getCommandLine();
         }
 
+        var_dump($commandline);
         // use exec to omit wrapping shell
         $process = new Process($commandline);
 
@@ -454,7 +455,6 @@ class ProcessManager{
         $slave->attach($process);
         $this->slaves->add($slave);
 
-        $process->start($this->loop);
         $process->stderr->on(
             'data',
             function($data) use ($port){
@@ -465,6 +465,11 @@ class ProcessManager{
                 $this->output->write("<error>$data</error>");
             }
         );
+        $process->start($this->loop);
+
+        if($this->output->isVeryVerbose()) {
+            $this->output->writeln(sprintf("Worker pid %d has been started", $process->getPid()));
+        }
     }
 
     /**

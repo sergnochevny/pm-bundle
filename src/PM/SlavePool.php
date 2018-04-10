@@ -92,7 +92,6 @@ class SlavePool
                 return $slave;
             }
         }
-
         throw new \Exception("Slave connection not registered.");
     }
 
