@@ -435,7 +435,7 @@ class ProcessManager{
         }
 
         // slave php file
-        $file = "./bin/console pmb:slave --port " . $port;
+        $file = "bin/console pmb:slave --port " . $port;
 
         //For version 2.x and 3.x of \Symfony\Component\Process\Process package
         if(method_exists('\Symfony\Component\Process\ProcessUtils', 'escapeArgument')) {
@@ -455,6 +455,7 @@ class ProcessManager{
         $slave->attach($process);
         $this->slaves->add($slave);
 
+        $process->start($this->loop);
         $process->stderr->on(
             'data',
             function($data) use ($port){
@@ -465,7 +466,6 @@ class ProcessManager{
                 $this->output->write("<error>$data</error>");
             }
         );
-        $process->start($this->loop);
 
         if($this->output->isVeryVerbose()) {
             $this->output->writeln(sprintf("Worker pid %d has been started", $process->getPid()));
