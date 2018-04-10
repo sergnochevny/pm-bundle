@@ -4,7 +4,7 @@
  * Copyright (c) 2018. AIT
  */
 
-namespace PMB\PHBundle\Debug;
+namespace PMB\PMBundle\Debug;
 
 use Psr\Log\AbstractLogger;
 use Symfony\Component\Debug\BufferingLogger as SymfonyBufferingLogger;

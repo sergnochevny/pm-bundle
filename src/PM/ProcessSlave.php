@@ -9,7 +9,7 @@ namespace PMB\PMBundle\PM;
 
 use Evenement\EventEmitterInterface;
 use MKraemer\ReactPCNTL\PCNTL;
-use PMB\PHBundle\Debug\BufferingLogger;
+use PMB\PMBundle\Debug\BufferingLogger;
 use PMB\PMBundle\Bridge\RequestListener;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
