@@ -440,10 +440,10 @@ class ProcessManager{
 
         //For version 2.x and 3.x of \Symfony\Component\Process\Process package
         if(method_exists('\Symfony\Component\Process\ProcessUtils', 'escapeArgument')) {
-            $commandline = 'exec ' . $phpCgiExecutable . ' ' . ProcessUtils::escapeArgument($file);
+            $commandline = $phpCgiExecutable . ' ' . ProcessUtils::escapeArgument($file);
         } else {
             //For version 4.x of \Symfony\Component\Process\Process package
-            $commandline = ['exec', $phpCgiExecutable, $file];
+            $commandline = [$phpCgiExecutable, $file];
             $processInstance = new \Symfony\Component\Process\Process($commandline);
             $commandline = $processInstance->getCommandLine();
         }
