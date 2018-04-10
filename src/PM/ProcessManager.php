@@ -16,6 +16,7 @@ use React\Socket\Server;
 use React\Socket\ServerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Debug\Debug;
+use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\ProcessUtils;
 
 class ProcessManager{
@@ -426,15 +427,20 @@ class ProcessManager{
             $this->output->writeln(sprintf("Start new worker #%s %d", $host, $port));
         }
 
+        $executableFinder = new PhpExecutableFinder();
+        if (false === $phpCgiExecutable = $executableFinder->find(false)) {
+            $phpCgiExecutable = $this->phpCgiExecutable;
+        }
+
         // slave php file
         $file = "./bin/console pmb:slave --port " . $port;
 
         //For version 2.x and 3.x of \Symfony\Component\Process\Process package
         if(method_exists('\Symfony\Component\Process\ProcessUtils', 'escapeArgument')) {
-            $commandline = 'exec ' . $this->phpCgiExecutable . ' -C ' . ProcessUtils::escapeArgument($file);
+            $commandline = 'exec ' . $phpCgiExecutable . ' -C ' . ProcessUtils::escapeArgument($file);
         } else {
             //For version 4.x of \Symfony\Component\Process\Process package
-            $commandline = ['exec', $this->phpCgiExecutable, '-C', $file];
+            $commandline = ['exec', $phpCgiExecutable, '-C', $file];
             $processInstance = new \Symfony\Component\Process\Process($commandline);
             $commandline = $processInstance->getCommandLine();
         }
@@ -670,7 +676,7 @@ class ProcessManager{
      * @throws \Exception
      */
     public function createSlaves(){
-        for($i = 1; $i <= $this->slaveCount; $i++) {
+        for($i = 0; $i < $this->slaveCount; $i++) {
             $this->newSlaveInstance($this->host, $this->port + $i);
         }
     }
