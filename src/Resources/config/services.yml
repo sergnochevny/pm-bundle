@@ -18,7 +18,7 @@ parameters:
 
 services:
   pmb.pm_bundle.request_bridge:
-    class: "%pm.reactphp_bridge.request_bridge.class%"
+    class: "%pmb.pm_bundle.request_bridge.class%"
     arguments:
       - "@kernel"
       - "@pmb.pm_bundle.vendor.http_foundation_factory"

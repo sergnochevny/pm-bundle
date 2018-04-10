@@ -46,7 +46,7 @@ class DoctrineCompilerPass implements CompilerPassInterface
         if ($container->hasParameter('doctrine.dbal.connection_factory.class')) {
             $container->setParameter(
                 'doctrine.dbal.connection_factory.class',
-                'Teknoo\\ReactPHPBundle\\Doctrine\\ConnectionFactory'
+                'PMB\\PMBundle\\Doctrine\\ConnectionFactory'
             );
         }
     }

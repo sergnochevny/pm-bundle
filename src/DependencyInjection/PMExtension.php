@@ -39,12 +39,12 @@ use Symfony\Component\DependencyInjection\Loader;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
-class ReactPHPExtension extends Extension
+class PMExtension extends Extension
 {
     /**
      * {@inheritdoc}
      */
-    public function load(array $configs, ContainerBuilder $container): ReactPHPExtension
+    public function load(array $configs, ContainerBuilder $container): PMExtension
     {
         $configuration = new Configuration();
         $this->processConfiguration($configuration, $configs);
