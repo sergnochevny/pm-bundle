@@ -6,13 +6,14 @@
 namespace PMB\PMBundle\Command;
 
 use PMB\PMBundle\Bridge\RequestListener;
-use PMB\PMBundle\PM\ProcessManager;
+use function PMB\PMBundle\pcntl_enabled;
 use PMB\PMBundle\PM\ProcessSlave;
 use React\EventLoop\LoopInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+
 
 class SlaveCommand extends ContainerAwareCommand{
 
