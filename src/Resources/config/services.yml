@@ -36,23 +36,23 @@ services:
       - "@pmb.pm_bundle.request_listener"
       - "@pmb.pm_bundle.vendor.loop"
     tags:
-      - { name: console.command }
+      - { name: console.command, command: pmb:slave }
   pmb.pm_bundle.command.start:
     class: "%pmb.pm_bundle.command.start.class%"
     tags:
-      - { name: console.command }
+      - { name: console.command, command: pmb:start }
   pmb.pm_bundle.command.stop:
     class: "%pmb.pm_bundle.command.stop.class%"
     tags:
-      - { name: console.command }
+      - { name: console.command, command: pmb:stop }
   pmb.pm_bundle.command.status:
     class: "%pmb.pm_bundle.command.status.class%"
     tags:
-      - { name: console.command }
+      - { name: console.command, command: pmb:status }
   pmb.pm_bundle.command.config:
     class: "%pmb.pm_bundle.command.config.class%"
     tags:
-      - { name: console.command }
+      - { name: console.command, command: pmb:config }
 
   #Vendors
   pmb.pm_bundle.vendor.loop:
