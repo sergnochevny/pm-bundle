@@ -444,8 +444,8 @@ class ProcessManager{
             $commandline = 'exec ' . $phpCgiExecutable . ' ' . ProcessUtils::escapeArgument($file . " " . implode(' ', $args));
         } else {
             //For version 4.x of \Symfony\Component\Process\Process package
-            $commandline = array_merge([$phpCgiExecutable, $file], $args);
-            $processInstance = new \Symfony\Component\Process\Process(implode(' ',$commandline));
+            $commandline = implode(' ', array_merge([$phpCgiExecutable, $file], $args));
+            $processInstance = new \Symfony\Component\Process\Process($commandline);
             $commandline = $processInstance->getCommandLine();
         }
 
