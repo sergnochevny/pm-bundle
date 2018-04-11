@@ -33,6 +33,7 @@ class SlaveCommand extends ContainerAwareCommand{
 
     /**
      * {@inheritdoc}
+     * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
      */
     protected function configure(){
         parent::configure();
@@ -50,6 +51,7 @@ class SlaveCommand extends ContainerAwareCommand{
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @return int|null
      * @throws \RuntimeException
+     * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output){
 

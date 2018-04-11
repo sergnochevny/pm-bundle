@@ -33,6 +33,9 @@ class ProcessSlave{
      */
     protected $server;
 
+    /**
+     * @var \PMB\PMBundle\Bridge\RequestListener
+     */
     protected $requestListener;
     /**
      * @var LoopInterface
@@ -116,7 +119,7 @@ class ProcessSlave{
     protected function logResponse(ServerRequestInterface $request, ResponseInterface $response, $timeLocal){
         $logFunction = function($size) use ($request, $response, $timeLocal){
             $requestString = $request->getMethod() . ' ' . $request->getUri()->getPath() . ' HTTP/' . $request->getProtocolVersion();
-            $remoteIp = $request->getAttribute('REMOTE_ADDR');
+            $remoteIp = $request->getClientIp();
             $statusCode = $response->getStatusCode();
 
             if($statusCode < 400) {
@@ -169,6 +172,28 @@ class ProcessSlave{
         } else {
             $logFunction(strlen(\RingCentral\Psr7\str($response)));
         }
+    }
+
+    /**
+     *
+     * @param string $affix
+     * @return string
+     */
+    protected function getSock($affix){
+
+        return $this->socketScheme . '://' . $affix;
+    }
+
+    /**
+     * @param $host
+     * @param int $port
+     *
+     * @return string
+     */
+    protected function getSlaveSocketPath($host, $port){
+        $affix = (!empty($host) ? $host . ':' : '') . $port;
+
+        return $this->getSock($affix);
     }
 
     /**
@@ -258,6 +283,7 @@ class ProcessSlave{
             function($controller){
                 $this->controller = $controller;
                 $this->logger = new ProcessSlaveLogger($this->controller);
+                $this->requestListener->getBridge()->setLogger($this->logger);
                 $pcntl = new PCNTL($this->loop);
                 $pcntl->on(SIGTERM, [$this, 'shutdown']);
                 $pcntl->on(SIGINT, [$this, 'shutdown']);
@@ -311,28 +337,5 @@ class ProcessSlave{
 
         return $promise;
     }
-
-    /**
-     *
-     * @param string $affix
-     * @return string
-     */
-    protected function getSock($affix){
-
-        return $this->socketScheme . '://' . $affix;
-    }
-
-    /**
-     * @param $host
-     * @param int $port
-     *
-     * @return string
-     */
-    protected function getSlaveSocketPath($host, $port){
-        $affix = (!empty($host) ? $host . ':' : '') . $port;
-
-        return $this->getSock($affix);
-    }
-
 
 }

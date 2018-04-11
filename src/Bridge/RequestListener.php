@@ -69,6 +69,15 @@ class RequestListener
     }
 
     /**
+     * To get a new instance bridge, by cloning, to handle the new request from ReactPHP.
+     *
+     * @return RequestBridge
+     */
+    public function getBridge(): RequestBridge
+    {
+        return $this->bridge;
+    }
+    /**
      * To run directly the bridge with request without body-entity (like GET request): Any request without
      * Content-Length or Transfer-Encoding headers.
      *
@@ -153,7 +162,7 @@ class RequestListener
      *
      * @return Promise
      */
-    public function __invoke(ServerRequestInterface $request): Promise
+    public function handle(ServerRequestInterface $request): Promise
     {
         return new Promise(function ($resolve) use ($request) {
             $bridge = $this->getRequestBridge();

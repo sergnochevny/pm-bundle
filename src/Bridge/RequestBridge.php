@@ -190,9 +190,10 @@ class RequestBridge
      *
      *
      * @param SymfonyRequest $request
-     * @param callable       $resolve
+     * @param callable $resolve
      *
      * @return RequestBridge
+     * @throws \Exception
      */
     protected function executePreparedRequest(SymfonyRequest $request, callable $resolve): RequestBridge
     {

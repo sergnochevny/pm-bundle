@@ -469,11 +469,13 @@ class ProcessManager{
         $process->stdout->on(
             'data',
             function($data) use ($port){
-                if($this->lastWorkerErrorPrintBy !== $port) {
-                    $this->output->writeln("<info>--- Worker $port stdout ---</info>");
-                    $this->lastWorkerErrorPrintBy = $port;
+                if($this->output->isVeryVerbose()) {
+                    if($this->lastWorkerErrorPrintBy !== $port) {
+                        $this->output->writeln("<info>--- Worker $port stdout ---</info>");
+                        $this->lastWorkerErrorPrintBy = $port;
+                    }
+                    $this->output->write("<info>$data</info>");
                 }
-                $this->output->write("<info>$data</info>");
             }
         );
 
