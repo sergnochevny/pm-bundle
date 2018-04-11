@@ -137,7 +137,7 @@ class RequestBridge
      * @param SymfonyRequest  $request
      * @param SymfonyResponse $response
      */
-    protected function logRequest(SymfonyRequest $request, SymfonyResponse $response)
+    protected function logRequestResponse(SymfonyRequest $request, SymfonyResponse $response)
     {
         if (!$this->logger instanceof LoggerInterface) {
             return;
@@ -151,6 +151,23 @@ class RequestBridge
             $request->getUri(),
             $response->getStatusCode(),
             \strlen($response->getContent())
+        );
+
+        $this->logger->info($message);
+    }
+
+    protected function logRequest(SymfonyRequest $request)
+    {
+        if (!$this->logger instanceof LoggerInterface) {
+            return;
+        }
+
+        $message = \sprintf(
+            '%s - [%s] "%s %s"',
+            $request->getClientIp(),
+            date('d/M/Y H:i:s O'),
+            $request->getRealMethod(),
+            $request->getUri()
         );
 
         $this->logger->info($message);
@@ -202,7 +219,7 @@ class RequestBridge
         $resolve($this->diactorosFactory->createResponse($sfResponse));
 
         $this->terminate($request, $sfResponse);
-        $this->logRequest($request, $sfResponse);
+        $this->logRequesResponse($request, $sfResponse);
 
         return $this;
     }
@@ -223,7 +240,7 @@ class RequestBridge
     {
         try {
             $sfRequest = $this->httpFoundationFcty->createRequest($request);
-
+            $this->logRequest($sfRequest, $sfResponse);
             return $this->executePreparedRequest($sfRequest, $resolve);
         } catch (HttpException $error) {
             $this->logError($request, $error);
