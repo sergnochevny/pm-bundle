@@ -239,8 +239,9 @@ class RequestBridge
     public function run(ServerRequestInterface $request, callable $resolve): RequestBridge
     {
         try {
+            $this->logger->info('-Request-');
             $sfRequest = $this->httpFoundationFcty->createRequest($request);
-            $this->logRequest($sfRequest, $sfResponse);
+            $this->logRequest($sfRequest);
             return $this->executePreparedRequest($sfRequest, $resolve);
         } catch (HttpException $error) {
             $this->logError($request, $error);
