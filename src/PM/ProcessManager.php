@@ -446,7 +446,7 @@ class ProcessManager{
             //For version 4.x of \Symfony\Component\Process\Process package
             $commandline = implode(' ', array_merge([$phpCgiExecutable, $file], $args));
             $processInstance = new \Symfony\Component\Process\Process($commandline);
-            $commandline = $processInstance->getCommandLine();
+            $commandline = 'exec ' . $processInstance->getCommandLine();
         }
 
         var_dump($commandline);
