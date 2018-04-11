@@ -7,7 +7,7 @@ declare(ticks=1);
 
 namespace PMB\PMBundle\PM;
 
-use MKraemer\ReactPCNTL\PCNTL;
+use ReactPCNTL\PCNTL;
 use React\ChildProcess\Process;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
@@ -313,7 +313,6 @@ class ProcessManager{
      */
     protected function commandReady(array $data, ConnectionInterface $conn){
         try {
-            var_dump($conn);
             $slave = $this->slaves->getByConnection($conn);
         } catch(\Exception $e) {
             $this->output->writeln($e->getMessage());
@@ -502,11 +501,10 @@ class ProcessManager{
 
         // this method is also called during startup when something crashed, so
         // make sure we don't operate on nulls.
-        if($this->controller) {
+        if(!empty($this->controller)) {
             @$this->controller->close();
         }
-        if($this->loop) {
-            $this->loop->tick();
+        if($this->loop instanceof LoopInterface) {
             $this->loop->stop();
         }
 
@@ -581,8 +579,10 @@ class ProcessManager{
 
     /**
      * Starts the main loop. Blocks.
+     * @throws \InvalidArgumentException
      * @throws \ReflectionException
      * @throws \RuntimeException
+     * @throws \Exception
      */
     public function run(){
         Debug::enable();

@@ -8,7 +8,7 @@ declare(ticks=1);
 namespace PMB\PMBundle\PM;
 
 use Evenement\EventEmitterInterface;
-use MKraemer\ReactPCNTL\PCNTL;
+use ReactPCNTL\PCNTL;
 use PMB\PMBundle\Debug\BufferingLogger;
 use PMB\PMBundle\Bridge\RequestListener;
 use Psr\Http\Message\ResponseInterface;
@@ -226,14 +226,13 @@ class ProcessSlave{
 
         $this->inShutdown = true;
 
-        if($this->controller && $this->controller->isWritable()) {
+        if(($this->controller instanceof ConnectionInterface) && $this->controller->isWritable()) {
             $this->controller->close();
         }
-        if($this->server) {
+        if($this->server instanceof ServerInterface) {
             @$this->server->close();
         }
-        if($this->loop) {
-            $this->loop->tick();
+        if($this->loop instanceof LoopInterface) {
             @$this->loop->stop();
         }
 
