@@ -332,9 +332,8 @@ class ProcessManager{
             } else {
                 $this->output->writeln(
                     sprintf(
-                        "<info>%d workers (starting at %d) up and ready. Application is ready at http://%s/</info>",
+                        "<info>%d workers up and ready. Application is ready at http://%s/</info>",
                         $this->slaveCount,
-                        $this->port + 1,
                         $this->host
                     )
                 );
