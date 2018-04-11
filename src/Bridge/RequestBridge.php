@@ -219,7 +219,7 @@ class RequestBridge
         $resolve($this->diactorosFactory->createResponse($sfResponse));
 
         $this->terminate($request, $sfResponse);
-        $this->logRequesResponse($request, $sfResponse);
+        $this->logRequestResponse($request, $sfResponse);
 
         return $this;
     }
