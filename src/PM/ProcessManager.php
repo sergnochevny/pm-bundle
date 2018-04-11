@@ -447,7 +447,6 @@ class ProcessManager{
             $commandline = 'exec ' . $processInstance->getCommandLine();
         }
 
-        var_dump($commandline);
         // use exec to omit wrapping shell
         $process = new Process($commandline);
 
