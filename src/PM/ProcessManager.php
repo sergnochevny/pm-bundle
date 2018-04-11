@@ -352,6 +352,7 @@ class ProcessManager{
      * @param ConnectionInterface $conn
      */
     protected function commandLog(array $data, ConnectionInterface $conn){
+        $this->output->writeln('--Log--');
         $this->output->writeln($data['message']);
     }
 

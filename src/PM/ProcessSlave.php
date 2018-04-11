@@ -325,8 +325,8 @@ class ProcessSlave{
     public function onRequest(ServerRequestInterface $request){
 
         $logTime = date('d/M/Y:H:i:s O');
-
-        $promise = $this->requestListener($request)
+        $this->logger->info('--Request--');
+        $promise = $this->requestListener->handle($request)
             ->then(function(ResponseInterface $response) use ($request, $logTime){
                 if($this->isLogging()) {
                     $this->logResponse($request, $response, $logTime);
