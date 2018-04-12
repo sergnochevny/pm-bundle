@@ -43,8 +43,8 @@ use Symfony\Component\HttpKernel\TerminableInterface;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
-class RequestBridge
-{
+class RequestBridge{
+
     protected $debug = false;
     /**
      * Symfony Kernel to use to handle and execute HTTP Request.
@@ -77,56 +77,30 @@ class RequestBridge
     /**
      * RequestBridge constructor.
      *
-     * @param KernelInterface                $kernel
+     * @param KernelInterface $kernel
      * @param HttpFoundationFactoryInterface $foundationFactory
-     * @param DiactorosFactory               $diactorosFactory
+     * @param DiactorosFactory $diactorosFactory
      */
     public function __construct(
         KernelInterface $kernel,
-        HttpFoundationFactoryInterface  $foundationFactory,
+        HttpFoundationFactoryInterface $foundationFactory,
         DiactorosFactory $diactorosFactory
-    ) {
+    ){
         $this->kernel = $kernel;
         $this->httpFoundationFcty = $foundationFactory;
         $this->diactorosFactory = $diactorosFactory;
     }
 
     /**
-     * To register a logger into the bridge to register request summary and errors.
-     *
-     * @param LoggerInterface $logger
-     *
-     * @return self
-     */
-    public function setLogger(LoggerInterface $logger): RequestBridge
-    {
-        $this->logger = $logger;
-
-        return $this;
-    }
-
-    /**
-     * @param bool $debug
-     * @return \PMB\PMBundle\Bridge\RequestBridge
-     */
-    public function setDebug(bool $debug): RequestBridge
-    {
-        $this->debug = $debug;
-
-        return $this;
-    }
-
-    /**
      * If the Kernel support Terminate behavior, execute it.
      *
-     * @param SymfonyRequest  $request
+     * @param SymfonyRequest $request
      * @param SymfonyResponse $response
      *
      * @return self
      */
-    protected function terminate(SymfonyRequest $request, SymfonyResponse $response): RequestBridge
-    {
-        if ($this->kernel instanceof TerminableInterface) {
+    protected function terminate(SymfonyRequest $request, SymfonyResponse $response): RequestBridge{
+        if($this->kernel instanceof TerminableInterface) {
             $this->kernel->terminate($request, $response);
         }
 
@@ -134,23 +108,14 @@ class RequestBridge
     }
 
     /**
-     * Magic method to clone the Symfony Kernel when this RequestBridge instance is cloned by the listener.
-     */
-    public function __clone()
-    {
-        $this->kernel = clone $this->kernel;
-    }
-
-    /**
      * To add in the log system the result of the request, following the log format defined for Apache HTTP.
      * If no logger has been defined, this operation is ignored.
      *
-     * @param SymfonyRequest  $request
+     * @param SymfonyRequest $request
      * @param SymfonyResponse $response
      */
-    protected function logRequestResponse(SymfonyRequest $request, SymfonyResponse $response)
-    {
-        if (!$this->logger instanceof LoggerInterface) {
+    protected function logRequestResponse(SymfonyRequest $request, SymfonyResponse $response){
+        if(!$this->logger instanceof LoggerInterface) {
             return;
         }
 
@@ -166,11 +131,13 @@ class RequestBridge
 
         $this->logger->info($message);
 
-        if($this->debug){
+        $this->logger->info('debug: ' . $this->debug ? 'true' : 'false');
+        $this->logger->debug('debug: ' . $this->debug ? 'true' : 'false');
+        if($this->debug) {
             $message = \sprintf(
                 "Request: %s \n Response: %s",
-                (string) $request,
-                (string) $response
+                (string)$request,
+                (string)$response
             );
             $this->logger->debug($message);
         }
@@ -179,9 +146,8 @@ class RequestBridge
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      */
-    protected function logRequest(SymfonyRequest $request)
-    {
-        if (!$this->logger instanceof LoggerInterface) {
+    protected function logRequest(SymfonyRequest $request){
+        if(!$this->logger instanceof LoggerInterface) {
             return;
         }
 
@@ -195,10 +161,10 @@ class RequestBridge
 
         $this->logger->info($message);
 
-        if($this->debug){
+        if($this->debug) {
             $message = \sprintf(
                 "Request: %s",
-                (string) $request
+                (string)$request
             );
             $this->logger->debug($message);
         }
@@ -209,11 +175,10 @@ class RequestBridge
      * If no logger has been defined, this operation is ignored.
      *
      * @param ServerRequestInterface $request
-     * @param \Throwable             $error
+     * @param \Throwable $error
      */
-    protected function logError(ServerRequestInterface $request, \Throwable $error)
-    {
-        if (!$this->logger instanceof LoggerInterface) {
+    protected function logError(ServerRequestInterface $request, \Throwable $error){
+        if(!$this->logger instanceof LoggerInterface) {
             return;
         }
 
@@ -243,35 +208,64 @@ class RequestBridge
      * @return RequestBridge
      * @throws \Exception
      */
-    protected function executePreparedRequest(SymfonyRequest $request, callable $resolve): RequestBridge
-    {
-        if($this->debug){
+    protected function executePreparedRequest(SymfonyRequest $request, callable $resolve): RequestBridge{
+        if($this->debug) {
             $this->logger->debug('Start handling request');
         }
 
         $sfResponse = $this->kernel->handle($request);
 
-        if($this->debug){
+        if($this->debug) {
             $this->logger->debug('Request handled');
             $this->logger->debug('Resolve request');
         }
 
         $resolve($this->diactorosFactory->createResponse($sfResponse));
 
-        if($this->debug){
+        if($this->debug) {
             $this->logger->debug('Request resolved');
         }
 
-        if($this->debug){
+        if($this->debug) {
             $this->logger->debug('Terminate handling');
         }
         $this->terminate($request, $sfResponse);
-        if($this->debug){
+        if($this->debug) {
             $this->logger->debug('Stop handling request');
         }
         $this->logRequestResponse($request, $sfResponse);
 
         return $this;
+    }
+
+    /**
+     * To register a logger into the bridge to register request summary and errors.
+     *
+     * @param LoggerInterface $logger
+     *
+     * @return self
+     */
+    public function setLogger(LoggerInterface $logger): RequestBridge{
+        $this->logger = $logger;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $debug
+     * @return \PMB\PMBundle\Bridge\RequestBridge
+     */
+    public function setDebug(bool $debug): RequestBridge{
+        $this->debug = $debug;
+
+        return $this;
+    }
+
+    /**
+     * Magic method to clone the Symfony Kernel when this RequestBridge instance is cloned by the listener.
+     */
+    public function __clone(){
+        $this->kernel = clone $this->kernel;
     }
 
     /**
@@ -282,20 +276,20 @@ class RequestBridge
      * are catched by this method, to generate an Error response (40* ou 50* responses) from the exception instance.
      *
      * @param ServerRequestInterface $request
-     * @param callable               $resolve
+     * @param callable $resolve
      *
      * @return RequestBridge
      */
-    public function run(ServerRequestInterface $request, callable $resolve): RequestBridge
-    {
+    public function run(ServerRequestInterface $request, callable $resolve): RequestBridge{
         try {
             $sfRequest = $this->httpFoundationFcty->createRequest($request);
             $this->logRequest($sfRequest);
+
             return $this->executePreparedRequest($sfRequest, $resolve);
-        } catch (HttpException $error) {
+        } catch(HttpException $error) {
             $this->logError($request, $error);
             $resolve(new ReactResponse($error->getStatusCode(), $error->getHeaders(), $error->getMessage()));
-        } catch (\Throwable $error) {
+        } catch(\Throwable $error) {
             $this->logError($request, $error);
             $resolve(new ReactResponse(500, [], $error->getMessage()));
         }

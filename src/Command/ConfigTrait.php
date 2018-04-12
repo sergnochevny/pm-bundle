@@ -155,7 +155,6 @@ trait ConfigTrait
             }
             $output->writeln(sprintf('<info>Read configuration %s%s.</info>', $path, $modified));
         }
-        $output->writeln(sprintf('<info>%s</info>', getcwd()));
 
         if ($render) {
             $this->renderConfig($output, $config);
