@@ -131,13 +131,11 @@ class RequestBridge{
 
         $this->logger->info($message);
 
-        $this->logger->info('debug: ' . $this->debug ? 'true' : 'false');
-        $this->logger->debug('debug: ' . $this->debug ? 'true' : 'false');
         if($this->debug) {
             $message = \sprintf(
                 "Request: %s \n Response: %s",
-                (string)$request,
-                (string)$response
+                $request,
+                $response
             );
             $this->logger->debug($message);
         }
@@ -163,7 +161,7 @@ class RequestBridge{
 
         $message = \sprintf(
             "Request: %s",
-            (string)$request
+            $request
         );
         $this->logger->debug($message);
     }
