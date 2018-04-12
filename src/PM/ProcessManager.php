@@ -19,6 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\ProcessUtils;
+use Symfony\Component\VarDumper\VarDumper;
 
 class ProcessManager{
 
@@ -369,7 +370,7 @@ class ProcessManager{
         }
         $this->output->writeln('<' . $level . '>' . $data['message'] . '</' . $level . '>');
         if(!empty($data['context'])) {
-            $this->output->writeln('<' . $level . '>' . var_export($data['context'], true) . '</' . $level . '>');
+            $this->output->writeln('<' . $level . '>' . VarDumper::dump($data['context']) . '</' . $level . '>');
         }
     }
 
