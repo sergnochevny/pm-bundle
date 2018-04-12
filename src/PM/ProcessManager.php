@@ -45,6 +45,18 @@ class ProcessManager{
      * Load balancer is in shutdown
      */
     const STATE_STARTING = 0;
+
+    private static $levels = [
+        LogLevel::EMERGENCY => 'emergency',
+        LogLevel::ALERT => 'alert',
+        LogLevel::CRITICAL => 'critical',
+        LogLevel::ERROR => 'error',
+        LogLevel::WARNING => 'warning',
+        LogLevel::NOTICE => 'notice',
+        LogLevel::INFO => 'info',
+        LogLevel::DEBUG => 'debug',
+    ];
+
     /**
      * Load balancer status
      */
@@ -354,19 +366,9 @@ class ProcessManager{
      * @param ConnectionInterface $conn
      */
     protected function commandLog(array $data, ConnectionInterface $conn){
-        $levels = [
-            LogLevel::EMERGENCY => 'emergency',
-            LogLevel::ALERT => 'alert',
-            LogLevel::CRITICAL => 'critical',
-            LogLevel::ERROR => 'error',
-            LogLevel::WARNING => 'warning',
-            LogLevel::NOTICE => 'notice',
-            LogLevel::INFO => 'info',
-            LogLevel::DEBUG => 'debug',
-        ];
-        $level = $levels[LogLevel::INFO];
+        $level = static::$levels[LogLevel::INFO];
         if(!empty($data['level'])) {
-            $level = $levels[$data['level']];
+            $level = static::$levels[$data['level']];
         }
         $this->output->writeln('<' . $level . '>' . $data['message'] . '</' . $level . '>');
         if(!empty($data['context'])) {

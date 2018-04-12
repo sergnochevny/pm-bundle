@@ -119,7 +119,7 @@ class ProcessSlave{
     protected function logResponse(ServerRequestInterface $request, ResponseInterface $response, $timeLocal){
         $logFunction = function($size) use ($request, $response, $timeLocal){
             $requestString = $request->getMethod() . ' ' . $request->getUri()->getPath() . ' HTTP/' . $request->getProtocolVersion();
-            $remoteIp = $request->getClientIp();
+            $remoteIp = $request->getServerParams()['REMOTE_ADDR'];
             $statusCode = $response->getStatusCode();
 
             if($statusCode < 400) {
@@ -283,7 +283,10 @@ class ProcessSlave{
             function($controller){
                 $this->controller = $controller;
                 $this->logger = new ProcessSlaveLogger($this->controller);
-                $this->requestListener->getBridge()->setLogger($this->logger);
+                $this->requestListener->getBridge()
+                    ->setLogger($this->logger)
+                    ->setDebug($this->isDebug());
+
                 $pcntl = new PCNTL($this->loop);
                 $pcntl->on(SIGTERM, [$this, 'shutdown']);
                 $pcntl->on(SIGINT, [$this, 'shutdown']);
@@ -325,7 +328,6 @@ class ProcessSlave{
     public function onRequest(ServerRequestInterface $request){
 
         $logTime = date('d/M/Y:H:i:s O');
-        $this->logger->info('--Request--');
         $promise = $this->requestListener->handle($request)
             ->then(function(ResponseInterface $response) use ($request, $logTime){
                 if($this->isLogging()) {

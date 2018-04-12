@@ -32,7 +32,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\HttpKernel\TerminableInterface;
-use PMB\PMBundle\Service\DatesService;
 
 /**
  * Class RequestBridge.
@@ -46,6 +45,7 @@ use PMB\PMBundle\Service\DatesService;
  */
 class RequestBridge
 {
+    protected $debug = false;
     /**
      * Symfony Kernel to use to handle and execute HTTP Request.
      *
@@ -106,6 +106,17 @@ class RequestBridge
     }
 
     /**
+     * @param bool $debug
+     * @return \PMB\PMBundle\Bridge\RequestBridge
+     */
+    public function setDebug(bool $debug): RequestBridge
+    {
+        $this->debug = $debug;
+
+        return $this;
+    }
+
+    /**
      * If the Kernel support Terminate behavior, execute it.
      *
      * @param SymfonyRequest  $request
@@ -154,8 +165,20 @@ class RequestBridge
         );
 
         $this->logger->info($message);
+
+        if($this->debug){
+            $message = \sprintf(
+                "Request: %s \n Response: %s",
+                (string) $request,
+                (string) $response
+            );
+            $this->logger->debug($message);
+        }
     }
 
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     */
     protected function logRequest(SymfonyRequest $request)
     {
         if (!$this->logger instanceof LoggerInterface) {
@@ -171,6 +194,14 @@ class RequestBridge
         );
 
         $this->logger->info($message);
+
+        if($this->debug){
+            $message = \sprintf(
+                "Request: %s",
+                (string) $request
+            );
+            $this->logger->debug($message);
+        }
     }
 
     /**
@@ -214,11 +245,30 @@ class RequestBridge
      */
     protected function executePreparedRequest(SymfonyRequest $request, callable $resolve): RequestBridge
     {
+        if($this->debug){
+            $this->logger->debug('Start handling request');
+        }
+
         $sfResponse = $this->kernel->handle($request);
+
+        if($this->debug){
+            $this->logger->debug('Request handled');
+            $this->logger->debug('Resolve request');
+        }
 
         $resolve($this->diactorosFactory->createResponse($sfResponse));
 
+        if($this->debug){
+            $this->logger->debug('Request resolved');
+        }
+
+        if($this->debug){
+            $this->logger->debug('Terminate handling');
+        }
         $this->terminate($request, $sfResponse);
+        if($this->debug){
+            $this->logger->debug('Stop handling request');
+        }
         $this->logRequestResponse($request, $sfResponse);
 
         return $this;
@@ -239,7 +289,6 @@ class RequestBridge
     public function run(ServerRequestInterface $request, callable $resolve): RequestBridge
     {
         try {
-            $this->logger->info('-Request-');
             $sfRequest = $this->httpFoundationFcty->createRequest($request);
             $this->logRequest($sfRequest);
             return $this->executePreparedRequest($sfRequest, $resolve);
