@@ -147,7 +147,7 @@ class RequestBridge{
      * @param \Symfony\Component\HttpFoundation\Request $request
      */
     protected function logRequest(SymfonyRequest $request){
-        if(!$this->logger instanceof LoggerInterface) {
+        if(!($this->logger instanceof LoggerInterface) || !$this->debug) {
             return;
         }
 
@@ -161,13 +161,11 @@ class RequestBridge{
 
         $this->logger->info($message);
 
-        if($this->debug) {
-            $message = \sprintf(
-                "Request: %s",
-                (string)$request
-            );
-            $this->logger->debug($message);
-        }
+        $message = \sprintf(
+            "Request: %s",
+            (string)$request
+        );
+        $this->logger->debug($message);
     }
 
     /**

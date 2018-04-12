@@ -284,7 +284,7 @@ class ProcessSlave{
                 $this->controller = $controller;
                 $this->logger = new ProcessSlaveLogger($this->controller);
                 $this->requestListener->getBridge()
-                    ->setDebug($this->isDebug())
+                    ->setDebug((bool)$this->isDebug())
                     ->setLogger($this->logger);
 
                 $pcntl = new PCNTL($this->loop);
