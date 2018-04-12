@@ -35,19 +35,6 @@ class ProcessSlaveLogger extends AbstractLogger{
     }
 
     public function log($level, $message, array $context = []){
-        $levels = [
-            LogLevel::EMERGENCY => 'emergency',
-            LogLevel::ALERT => 'alert',
-            LogLevel::CRITICAL => 'critical',
-            LogLevel::ERROR => 'error',
-            LogLevel::WARNING => 'warning',
-            LogLevel::NOTICE => 'notice',
-            LogLevel::INFO => 'info',
-            LogLevel::DEBUG => 'debug',
-        ];
-
-        $level = $levels[$level];
-
         $this->sendMessage(['cmd' => 'log', 'level' => $level, 'message' => $message, 'context' => $context]);
     }
 

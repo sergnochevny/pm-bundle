@@ -7,6 +7,7 @@ declare(ticks=1);
 
 namespace PMB\PMBundle\PM;
 
+use Psr\Log\LogLevel;
 use ReactPCNTL\PCNTL;
 use React\ChildProcess\Process;
 use React\EventLoop\Factory;
@@ -352,8 +353,24 @@ class ProcessManager{
      * @param ConnectionInterface $conn
      */
     protected function commandLog(array $data, ConnectionInterface $conn){
-        $this->output->writeln('--Log--');
-        $this->output->writeln($data['message']);
+        $levels = [
+            LogLevel::EMERGENCY => 'emergency',
+            LogLevel::ALERT => 'alert',
+            LogLevel::CRITICAL => 'critical',
+            LogLevel::ERROR => 'error',
+            LogLevel::WARNING => 'warning',
+            LogLevel::NOTICE => 'notice',
+            LogLevel::INFO => 'info',
+            LogLevel::DEBUG => 'debug',
+        ];
+        $level = $levels[LogLevel::INFO];
+        if(!empty($data['level'])) {
+            $level = $levels[$data['level']];
+        }
+        $this->output->writeln('<' . $level . '>' . $data['message'] . '</' . $level . '>');
+        if(!empty($data['context'])) {
+            $this->output->writeln('<' . $level . '>' . var_export($data['context'], true) . '</' . $level . '>');
+        }
     }
 
     /**
