@@ -17,6 +17,7 @@ class StartCommand extends ContainerAwareCommand
 
     /**
      * {@inheritdoc}
+     * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
      */
     protected function configure()
     {
@@ -35,9 +36,9 @@ class StartCommand extends ContainerAwareCommand
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @return int|null
+     * @throws \InvalidArgumentException
      * @throws \ReflectionException
      * @throws \RuntimeException
-     * @throws \Symfony\Component\Process\Exception\RuntimeException
      * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output)

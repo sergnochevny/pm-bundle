@@ -284,8 +284,8 @@ class ProcessSlave{
                 $this->controller = $controller;
                 $this->logger = new ProcessSlaveLogger($this->controller);
                 $this->requestListener->getBridge()
-                    ->setLogger($this->logger)
-                    ->setDebug($this->isDebug());
+                    ->setDebug($this->isDebug())
+                    ->setLogger($this->logger);
 
                 $pcntl = new PCNTL($this->loop);
                 $pcntl->on(SIGTERM, [$this, 'shutdown']);

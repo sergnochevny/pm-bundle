@@ -28,33 +28,34 @@ class ProcessManager{
     /*
      * Load balander started, waiting for slaves to come up
      */
-    const STATE_EMERGENCY = 2;
+    const ERROR = 'error';
 
     /*
      * Slaves started and registered
      */
-    const STATE_RUNNING = 1;
+    const INFO = 'info';
 
     /*
      * In emergency mode we need to close all workers due a fatal error
      * and wait for file changes to be able to restart workers
      */
-    const STATE_SHUTDOWN = 3;
+    const STATE_EMERGENCY = 2;
 
     /*
      * Load balancer is in shutdown
      */
+    const STATE_RUNNING = 1;
+    const STATE_SHUTDOWN = 3;
     const STATE_STARTING = 0;
-
-    private static $levels = [
-        LogLevel::EMERGENCY => 'emergency',
-        LogLevel::ALERT => 'alert',
-        LogLevel::CRITICAL => 'critical',
-        LogLevel::ERROR => 'error',
-        LogLevel::WARNING => 'warning',
-        LogLevel::NOTICE => 'notice',
-        LogLevel::INFO => 'info',
-        LogLevel::DEBUG => 'debug',
+    private static $formatLevelMap = [
+        LogLevel::EMERGENCY => self::ERROR,
+        LogLevel::ALERT => self::ERROR,
+        LogLevel::CRITICAL => self::ERROR,
+        LogLevel::ERROR => self::ERROR,
+        LogLevel::WARNING => self::INFO,
+        LogLevel::NOTICE => self::INFO,
+        LogLevel::INFO => self::INFO,
+        LogLevel::DEBUG => self::INFO,
     ];
 
     /**
@@ -366,13 +367,13 @@ class ProcessManager{
      * @param ConnectionInterface $conn
      */
     protected function commandLog(array $data, ConnectionInterface $conn){
-        $level = static::$levels[LogLevel::INFO];
+        $level = static::$formatLevelMap[LogLevel::INFO];
         if(!empty($data['level'])) {
-            $level = static::$levels[$data['level']];
+            $level = static::$formatLevelMap[$data['level']];
         }
-        $this->output->writeln('<' . $level . '>' . $data['message'] . '</' . $level . '>');
+        $this->output->writeln(sprintf('<%1$s>%2$s</%1$s>', $level, $data['message']));
         if(!empty($data['context'])) {
-            $this->output->writeln('<' . $level . '>' . VarDumper::dump($data['context']) . '</' . $level . '>');
+            $this->output->writeln(sprintf('<%1$s>%2$s</%1$s>', $level, VarDumper::dump($data['context'])));
         }
     }
 
