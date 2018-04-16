@@ -9,6 +9,7 @@ namespace Other\PmBundle\PM;
 
 use Evenement\EventEmitterInterface;
 use Other\PmBundle\Logger\StdLogger;
+use Other\PmBundle\Logger\ProcessSlaveLogger;
 use ReactPCNTL\PCNTL;
 use Other\PmBundle\Debug\BufferingLogger;
 use Other\PmBundle\Bridge\RequestListener;

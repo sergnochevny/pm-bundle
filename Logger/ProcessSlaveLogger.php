@@ -5,7 +5,7 @@
 
 declare(ticks=1);
 
-namespace Other\PmBundle\PM;
+namespace Other\PmBundle\Logger;
 
 use Psr\Log\AbstractLogger;
 use React\Socket\ConnectionInterface;
