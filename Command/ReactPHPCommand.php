@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Other\Bundle\PMBundle\Command;
+namespace Other\PmBundle\Command;
 
 use React\EventLoop\LoopInterface;
 use React\Socket\Server as SocketServer;
@@ -31,8 +31,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Other\Bundle\PMBundle\Bridge\RequestListener;
-use Other\Bundle\PMBundle\Logger\StdLogger;
+use Other\PmBundle\Bridge\RequestListener;
+use Other\PmBundle\Logger\StdLogger;
 
 /**
  * Class ReactPHPCommand. Main command controller to interpred CLI command, configure and start ReactPHP to start the

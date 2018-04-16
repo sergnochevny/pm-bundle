@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Other\Bundle\PMBundle\Doctrine;
+namespace Other\PmBundle\Doctrine;
 
 use Doctrine\Bundle\DoctrineBundle\ConnectionFactory as DoctrineConnectionFactory;
 use Doctrine\Common\EventManager;

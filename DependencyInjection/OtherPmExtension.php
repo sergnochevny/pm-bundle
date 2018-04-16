@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Other\Bundle\PMBundle\DependencyInjection;
+namespace Other\PmBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
@@ -39,12 +39,12 @@ use Symfony\Component\DependencyInjection\Loader;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
-class PMExtension extends Extension
+class OtherPmExtension extends Extension
 {
     /**
      * {@inheritdoc}
      */
-    public function load(array $configs, ContainerBuilder $container): PMExtension
+    public function load(array $configs, ContainerBuilder $container): OtherPmExtension
     {
         $configuration = new Configuration();
         $this->processConfiguration($configuration, $configs);

@@ -5,7 +5,7 @@
 
 declare(ticks=1);
 
-namespace Other\Bundle\PMBundle\PM;
+namespace Other\PmBundle\PM;
 
 use Psr\Log\LogLevel;
 use ReactPCNTL\PCNTL;

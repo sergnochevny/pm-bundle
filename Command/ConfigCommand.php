@@ -3,7 +3,7 @@
  * Copyright (c) 2018. AIT
  */
 
-namespace Other\Bundle\PMBundle\Command;
+namespace Other\PmBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;

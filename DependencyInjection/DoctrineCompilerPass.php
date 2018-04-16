@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Other\Bundle\PMBundle\DependencyInjection;
+namespace Other\PmBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -46,7 +46,7 @@ class DoctrineCompilerPass implements CompilerPassInterface
         if ($container->hasParameter('doctrine.dbal.connection_factory.class')) {
             $container->setParameter(
                 'doctrine.dbal.connection_factory.class',
-                'Other\Bundle\PMBundle\\Doctrine\\ConnectionFactory'
+                'Other\PmBundle\\Doctrine\\ConnectionFactory'
             );
         }
     }

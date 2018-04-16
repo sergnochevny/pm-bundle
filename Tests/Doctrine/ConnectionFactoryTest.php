@@ -20,11 +20,11 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Other\Bundle\PMBundle\Tests\ReactPHPBundle;
+namespace Other\PmBundle\Tests\ReactPHPBundle;
 
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Other\Bundle\PMBundle\Doctrine\ConnectionFactory;
+use Other\PmBundle\Doctrine\ConnectionFactory;
 
 /**
  * Class ConnectionFactoryTest.
@@ -36,7 +36,7 @@ use Other\Bundle\PMBundle\Doctrine\ConnectionFactory;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \Other\Bundle\PMBundle\Doctrine\ConnectionFactory
+ * @covers \Other\PmBundle\Doctrine\ConnectionFactory
  */
 class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
 {

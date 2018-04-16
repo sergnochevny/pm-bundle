@@ -1,66 +1,66 @@
 #src/Resources/config/services.yml
 parameters:
   #Request bridge
-  pmb.pm_bundle.request_bridge.class: 'Other\Bundle\PMBundle\Bridge\RequestBridge'
-  pmb.pm_bundle.request_listener.class: 'Other\Bundle\PMBundle\Bridge\RequestListener'
+  other.pm-bundle.request_bridge.class: 'Other\PmBundle\Bridge\RequestBridge'
+  other.pm-bundle.request_listener.class: 'Other\PmBundle\Bridge\RequestListener'
 
   #Command controller
-  pmb.pm_bundle.command.start.class: 'Other\Bundle\PMBundle\Command\StartCommand'
-  pmb.pm_bundle.command.status.class: 'Other\Bundle\PMBundle\Command\StatusCommand'
-  pmb.pm_bundle.command.stop.class: 'Other\Bundle\PMBundle\Command\StopCommand'
-  pmb.pm_bundle.command.config.class: 'Other\Bundle\PMBundle\Command\ConfigCommand'
-  pmb.pm_bundle.command.slave.class: 'Other\Bundle\PMBundle\Command\SlaveCommand'
+  other.pm-bundle.command.start.class: 'Other\PmBundle\Command\StartCommand'
+  other.pm-bundle.command.status.class: 'Other\PmBundle\Command\StatusCommand'
+  other.pm-bundle.command.stop.class: 'Other\PmBundle\Command\StopCommand'
+  other.pm-bundle.command.config.class: 'Other\PmBundle\Command\ConfigCommand'
+  other.pm-bundle.command.slave.class: 'Other\PmBundle\Command\SlaveCommand'
 
   #Vendors
-  pmb.pm_bundle.vendor.loop.class: 'React\EventLoop\LoopInterface'
-  pmb.pm_bundle.vendor.http_foundation_factory.class: 'Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory'
-  pmb.pm_bundle.vendor.diactoros_factory.class: 'Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory'
+  other.pm-bundle.vendor.loop.class: 'React\EventLoop\LoopInterface'
+  other.pm-bundle.vendor.http_foundation_factory.class: 'Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory'
+  other.pm-bundle.vendor.diactoros_factory.class: 'Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory'
 
 services:
-  pmb.pm_bundle.request_bridge:
-    class: "%pmb.pm_bundle.request_bridge.class%"
+  other.pm-bundle.request_bridge:
+    class: "%other.pm-bundle.request_bridge.class%"
     arguments:
       - "@kernel"
-      - "@pmb.pm_bundle.vendor.http_foundation_factory"
-      - "@pmb.pm_bundle.vendor.diactoros_factory"
+      - "@other.pm-bundle.vendor.http_foundation_factory"
+      - "@other.pm-bundle.vendor.diactoros_factory"
 
-  pmb.pm_bundle.request_listener:
-    class: "%pmb.pm_bundle.request_listener.class%"
+  other.pm-bundle.request_listener:
+    class: "%other.pm-bundle.request_listener.class%"
     arguments:
-      - "@pmb.pm_bundle.request_bridge"
+      - "@other.pm-bundle.request_bridge"
 
   #Command controller
-  pmb.pm_bundle.command.slave:
-    class: "%pmb.pm_bundle.command.slave.class%"
+  other.pm-bundle.command.slave:
+    class: "%other.pm-bundle.command.slave.class%"
     arguments:
-      - "@pmb.pm_bundle.request_listener"
-      - "@pmb.pm_bundle.vendor.loop"
+      - "@other.pm-bundle.request_listener"
+      - "@other.pm-bundle.vendor.loop"
     tags:
       - { name: console.command, command: pmb:slave }
-  pmb.pm_bundle.command.start:
-    class: "%pmb.pm_bundle.command.start.class%"
+  other.pm-bundle.command.start:
+    class: "%other.pm-bundle.command.start.class%"
     tags:
       - { name: console.command, command: pmb:start }
-  pmb.pm_bundle.command.stop:
-    class: "%pmb.pm_bundle.command.stop.class%"
+  other.pm-bundle.command.stop:
+    class: "%other.pm-bundle.command.stop.class%"
     tags:
       - { name: console.command, command: pmb:stop }
-  pmb.pm_bundle.command.status:
-    class: "%pmb.pm_bundle.command.status.class%"
+  other.pm-bundle.command.status:
+    class: "%other.pm-bundle.command.status.class%"
     tags:
       - { name: console.command, command: pmb:status }
-  pmb.pm_bundle.command.config:
-    class: "%pmb.pm_bundle.command.config.class%"
+  other.pm-bundle.command.config:
+    class: "%other.pm-bundle.command.config.class%"
     tags:
       - { name: console.command, command: pmb:config }
 
   #Vendors
-  pmb.pm_bundle.vendor.loop:
-    class: "%pmb.pm_bundle.vendor.loop.class%"
+  other.pm-bundle.vendor.loop:
+    class: "%other.pm-bundle.vendor.loop.class%"
     factory: ['React\EventLoop\Factory', 'create']
 
-  pmb.pm_bundle.vendor.http_foundation_factory:
-    class: "%pmb.pm_bundle.vendor.http_foundation_factory.class%"
+  other.pm-bundle.vendor.http_foundation_factory:
+    class: "%other.pm-bundle.vendor.http_foundation_factory.class%"
 
-  pmb.pm_bundle.vendor.diactoros_factory:
-    class: "%pmb.pm_bundle.vendor.diactoros_factory.class%"
+  other.pm-bundle.vendor.diactoros_factory:
+    class: "%other.pm-bundle.vendor.diactoros_factory.class%"

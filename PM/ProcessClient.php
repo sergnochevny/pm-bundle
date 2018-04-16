@@ -3,7 +3,7 @@
  * Copyright (c) 2018. AIT
  */
 
-namespace Other\Bundle\PMBundle\PM;
+namespace Other\PmBundle\PM;
 
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;

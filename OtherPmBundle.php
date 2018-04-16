@@ -4,11 +4,11 @@
  * Copyright (c) 2018. AIT
  */
 
-namespace Other\Bundle\PMBundle;
+namespace Other\PmBundle;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Other\Bundle\PMBundle\DependencyInjection\DoctrineCompilerPass;
+use Other\PmBundle\DependencyInjection\DoctrineCompilerPass;
 
 /**
  * Class ReactPHPBundle.
@@ -20,7 +20,7 @@ use Other\Bundle\PMBundle\DependencyInjection\DoctrineCompilerPass;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
-class PMBundle extends Bundle
+class OtherPmBundle extends Bundle
 {
     /**
      * To enable Compiler pass to register Request Parser entities into Request Builder

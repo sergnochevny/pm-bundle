@@ -3,9 +3,9 @@
  * Copyright (c) 2018. AIT
  */
 
-namespace Other\Bundle\PMBundle\Command;
+namespace Other\PmBundle\Command;
 
-use Other\Bundle\PMBundle\PM\ProcessClient;
+use Other\PmBundle\PM\ProcessClient;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

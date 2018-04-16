@@ -3,11 +3,11 @@
  * Copyright (c) 2018. AIT
  */
 
-namespace Other\Bundle\PMBundle\Command;
+namespace Other\PmBundle\Command;
 
-use Other\Bundle\PMBundle\Bridge\RequestListener;
-use function Other\Bundle\PMBundle\pcntl_enabled;
-use Other\Bundle\PMBundle\PM\ProcessSlave;
+use Other\PmBundle\Bridge\RequestListener;
+use function Other\PmBundle\pcntl_enabled;
+use Other\PmBundle\PM\ProcessSlave;
 use React\EventLoop\LoopInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
