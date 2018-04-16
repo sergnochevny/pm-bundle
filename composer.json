@@ -2,7 +2,7 @@
     "name": "other/pm-bundle",
     "description": "PM-Bundle to use Symfony Framework with ReactPHP",
     "license": "MIT",
-    "type": "library",
+    "type": "symfony-bundle",
     "keywords": ["HTTP", "HTTPS", "server", "ReactPHP","Symfony"],
     "autoload": {
         "psr-4": {
