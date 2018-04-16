@@ -17,6 +17,7 @@ class StatusCommand extends ContainerAwareCommand
 
     /**
      * {@inheritdoc}
+     * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
      */
     protected function configure()
     {
@@ -32,6 +33,13 @@ class StatusCommand extends ContainerAwareCommand
         $this->configurePPMOptions($this);
     }
 
+    /**
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @return int|null
+     * @throws \RuntimeException
+     * @throws \Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $config = $this->initializeConfig($input, $output, false);

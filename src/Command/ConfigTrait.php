@@ -94,7 +94,6 @@ trait ConfigTrait
         $config['socket-path'] = $this->optionOrConfigValue($input, 'socket-path', $config);
         $config['socket-scheme'] = $this->optionOrConfigValue($input, 'socket-scheme', $config);
         $config['pidfile'] = $this->optionOrConfigValue($input, 'pidfile', $config);
-
         $config['cgi-path'] = $this->optionOrConfigValue($input, 'cgi-path', $config);
 
         if (false === $config['cgi-path']) {
