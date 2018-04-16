@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Teknoo\Tests\ReactPHPBundle\Bridge;
+namespace PMB\PMBundle\Tests\ReactPHPBundle\Bridge;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;

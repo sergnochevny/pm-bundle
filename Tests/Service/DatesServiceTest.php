@@ -20,14 +20,12 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Teknoo\Tests\ReactPHPBundle;
+namespace PMB\PMBundle\Tests\ReactPHPBundle\Service;
 
-use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use PMB\PMBundle\Doctrine\ConnectionFactory;
+use PMB\PMBundle\Service\DatesService;
 
 /**
- * Class ConnectionFactoryTest.
+ * Class RequestBridgeTest.
  *
  * @copyright   Copyright (c) 2009-2017 Richard Déloge (richarddeloge@gmail.com)
  *
@@ -36,31 +34,34 @@ use PMB\PMBundle\Doctrine\ConnectionFactory;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \PMB\PMBundle\Doctrine\ConnectionFactory
+ * @covers \PMB\PMBundle\Service\DatesService
  */
-class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
+class DatesServiceTest extends \PHPUnit_Framework_TestCase
 {
-    public function buildFactory()
+    public function buildService()
     {
-        return new ConnectionFactory([]);
+        return new DatesService();
     }
 
-    public function testCreateConnection()
+    public function testSetBehavior()
     {
-        $factory = $this->buildFactory();
+        $date = new \DateTime('2017-04-27 10:09:08');
 
-        $this->getMockBuilder(Driver::class)->setMockClassName('ConnectionMock')->getMock();
+        $service = $this->buildService();
+        self::assertInstanceOf(DatesService::class, $service->setNow($date));
+        self::assertEquals($date, $service->getNow());
+        self::assertEquals($date, $service->getNow());
+    }
 
-        $connection1 = $factory->createConnection([
-            'driverClass' => 'ConnectionMock',
-            'platform' => $this->createMock(AbstractPlatform::class),
-        ]);
-
-        $connection2 = $factory->createConnection([
-            'driverClass' => 'ConnectionMock',
-            'platform' => $this->createMock(AbstractPlatform::class),
-        ]);
-
-        self::assertSame($connection1, $connection2);
+    public function testGetWithoutSetBehavior()
+    {
+        $service = $this->buildService();
+        $a = $service->getNow();
+        self::assertInstanceOf(\DateTime::class, $a);
+        sleep(2);
+        $b = $service->getNow();
+        self::assertInstanceOf(\DateTime::class, $b);
+        self::assertNotEquals($a, $b);
+        self::assertGreaterThan($a, $b);
     }
 }

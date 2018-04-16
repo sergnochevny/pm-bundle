@@ -20,13 +20,14 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Teknoo\Tests\ReactPHPBundle\DependencyInjection;
+namespace PMB\PMBundle\Tests\ReactPHPBundle;
 
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use PMB\PMBundle\DependencyInjection\Configuration;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use PMB\PMBundle\Doctrine\ConnectionFactory;
 
 /**
- * Class ConfigurationTest.
+ * Class ConnectionFactoryTest.
  *
  * @copyright   Copyright (c) 2009-2017 Richard Déloge (richarddeloge@gmail.com)
  *
@@ -35,25 +36,31 @@ use PMB\PMBundle\DependencyInjection\Configuration;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \PMB\PMBundle\DependencyInjection\Configuration
+ * @covers \PMB\PMBundle\Doctrine\ConnectionFactory
  */
-class ConfigurationTest extends \PHPUnit_Framework_TestCase
+class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @return Configuration
-     */
-    private function buildConfiguration(): Configuration
+    public function buildFactory()
     {
-        return new Configuration();
+        return new ConnectionFactory([]);
     }
 
-    public function testGetConfigTreeBuilder()
+    public function testCreateConnection()
     {
-        $treeBuilder = $this->buildConfiguration()->getConfigTreeBuilder();
+        $factory = $this->buildFactory();
 
-        self::assertInstanceOf(
-            TreeBuilder::class,
-            $treeBuilder
-        );
+        $this->getMockBuilder(Driver::class)->setMockClassName('ConnectionMock')->getMock();
+
+        $connection1 = $factory->createConnection([
+            'driverClass' => 'ConnectionMock',
+            'platform' => $this->createMock(AbstractPlatform::class),
+        ]);
+
+        $connection2 = $factory->createConnection([
+            'driverClass' => 'ConnectionMock',
+            'platform' => $this->createMock(AbstractPlatform::class),
+        ]);
+
+        self::assertSame($connection1, $connection2);
     }
 }

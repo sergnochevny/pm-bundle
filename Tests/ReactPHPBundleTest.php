@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Teknoo\Tests\ReactPHPBundle;
+namespace PMB\PMBundle\Tests\ReactPHPBundle;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use PMB\PMBundle\PMBundle;

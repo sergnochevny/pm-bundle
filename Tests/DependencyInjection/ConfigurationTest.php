@@ -20,12 +20,13 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace Teknoo\Tests\ReactPHPBundle\Service;
+namespace PMB\PMBundle\Tests\ReactPHPBundle\DependencyInjection;
 
-use PMB\PMBundle\Service\DatesService;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use PMB\PMBundle\DependencyInjection\Configuration;
 
 /**
- * Class RequestBridgeTest.
+ * Class ConfigurationTest.
  *
  * @copyright   Copyright (c) 2009-2017 Richard Déloge (richarddeloge@gmail.com)
  *
@@ -34,34 +35,25 @@ use PMB\PMBundle\Service\DatesService;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \PMB\PMBundle\Service\DatesService
+ * @covers \PMB\PMBundle\DependencyInjection\Configuration
  */
-class DatesServiceTest extends \PHPUnit_Framework_TestCase
+class ConfigurationTest extends \PHPUnit_Framework_TestCase
 {
-    public function buildService()
+    /**
+     * @return Configuration
+     */
+    private function buildConfiguration(): Configuration
     {
-        return new DatesService();
+        return new Configuration();
     }
 
-    public function testSetBehavior()
+    public function testGetConfigTreeBuilder()
     {
-        $date = new \DateTime('2017-04-27 10:09:08');
+        $treeBuilder = $this->buildConfiguration()->getConfigTreeBuilder();
 
-        $service = $this->buildService();
-        self::assertInstanceOf(DatesService::class, $service->setNow($date));
-        self::assertEquals($date, $service->getNow());
-        self::assertEquals($date, $service->getNow());
-    }
-
-    public function testGetWithoutSetBehavior()
-    {
-        $service = $this->buildService();
-        $a = $service->getNow();
-        self::assertInstanceOf(\DateTime::class, $a);
-        sleep(2);
-        $b = $service->getNow();
-        self::assertInstanceOf(\DateTime::class, $b);
-        self::assertNotEquals($a, $b);
-        self::assertGreaterThan($a, $b);
+        self::assertInstanceOf(
+            TreeBuilder::class,
+            $treeBuilder
+        );
     }
 }
