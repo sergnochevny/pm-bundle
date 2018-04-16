@@ -20,12 +20,12 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace PMB\PMBundle\Tests\ReactPHPBundle;
+namespace Other\Bundle\PMBundle\Tests\ReactPHPBundle;
 
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use PMB\PMBundle\Logger\StdLogger;
+use Other\Bundle\PMBundle\Logger\StdLogger;
 
 /**
  * Class RequestBridgeTest.
@@ -37,7 +37,7 @@ use PMB\PMBundle\Logger\StdLogger;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \PMB\PMBundle\Logger\StdLogger
+ * @covers \Other\Bundle\PMBundle\Logger\StdLogger
  */
 class StdLoggerTest extends \PHPUnit_Framework_TestCase
 {

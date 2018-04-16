@@ -20,10 +20,10 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace PMB\PMBundle\Tests\ReactPHPBundle\DependencyInjection;
+namespace Other\Bundle\PMBundle\Tests\ReactPHPBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use PMB\PMBundle\DependencyInjection\DoctrineCompilerPass;
+use Other\Bundle\PMBundle\DependencyInjection\DoctrineCompilerPass;
 
 /**
  * Class ConfigurationTest.
@@ -35,7 +35,7 @@ use PMB\PMBundle\DependencyInjection\DoctrineCompilerPass;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \PMB\PMBundle\DependencyInjection\DoctrineCompilerPass
+ * @covers \Other\Bundle\PMBundle\DependencyInjection\DoctrineCompilerPass
  */
 class DoctrineCompilerPassTest extends \PHPUnit_Framework_TestCase
 {
@@ -72,7 +72,7 @@ class DoctrineCompilerPassTest extends \PHPUnit_Framework_TestCase
             ->method('setParameter')
             ->with(
                 'doctrine.dbal.connection_factory.class',
-                'PMB\\PMBundle\\ReactPHPBundle\\Doctrine\\ConnectionFactory'
+                'Other\Bundle\PMBundle\\ReactPHPBundle\\Doctrine\\ConnectionFactory'
             );
 
         $this->buildCompiler()->process($container);

@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace PMB\PMBundle\Tests\ReactPHPBundle\Bridge;
+namespace Other\Bundle\PMBundle\Tests\ReactPHPBundle\Bridge;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -28,8 +28,8 @@ use Psr\Http\Message\StreamInterface;
 use React\Http\Response;
 use React\Stream\ReadableStreamInterface;
 use React\Promise\Promise;
-use PMB\PMBundle\Bridge\RequestBridge;
-use PMB\PMBundle\Bridge\RequestListener;
+use Other\Bundle\PMBundle\Bridge\RequestBridge;
+use Other\Bundle\PMBundle\Bridge\RequestListener;
 
 /**
  * Class RequestListenerTest.
@@ -41,7 +41,7 @@ use PMB\PMBundle\Bridge\RequestListener;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \PMB\PMBundle\Bridge\RequestListener
+ * @covers \Other\Bundle\PMBundle\Bridge\RequestListener
  */
 class RequestListenerTest extends \PHPUnit_Framework_TestCase
 {

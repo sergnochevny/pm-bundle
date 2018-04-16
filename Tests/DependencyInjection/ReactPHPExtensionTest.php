@@ -20,10 +20,10 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace PMB\PMBundle\Tests\ReactPHPBundle\DependencyInjection;
+namespace Other\Bundle\PMBundle\Tests\ReactPHPBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use PMB\PMBundle\DependencyInjection\ReactPHPExtension;
+use Other\Bundle\PMBundle\DependencyInjection\ReactPHPExtension;
 
 /**
  * Class ReactPHPExtensionTest.
@@ -35,7 +35,7 @@ use PMB\PMBundle\DependencyInjection\ReactPHPExtension;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \PMB\PMBundle\DependencyInjection\ReactPHPExtension
+ * @covers \Other\Bundle\PMBundle\DependencyInjection\ReactPHPExtension
  */
 class ReactPHPExtensionTest extends \PHPUnit_Framework_TestCase
 {

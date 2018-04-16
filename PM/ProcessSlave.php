@@ -5,12 +5,12 @@
 
 declare(ticks=1);
 
-namespace PMB\PMBundle\PM;
+namespace Other\Bundle\PMBundle\PM;
 
 use Evenement\EventEmitterInterface;
 use ReactPCNTL\PCNTL;
-use PMB\PMBundle\Debug\BufferingLogger;
-use PMB\PMBundle\Bridge\RequestListener;
+use Other\Bundle\PMBundle\Debug\BufferingLogger;
+use Other\Bundle\PMBundle\Bridge\RequestListener;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\EventLoop\LoopInterface;
@@ -34,7 +34,7 @@ class ProcessSlave{
     protected $server;
 
     /**
-     * @var \PMB\PMBundle\Bridge\RequestListener
+     * @var \Other\Bundle\PMBundle\Bridge\RequestListener
      */
     protected $requestListener;
     /**

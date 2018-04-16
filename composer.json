@@ -12,7 +12,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "PMB\\PMBundle\\": ""
+            "Other\\Bundle\\PMBundle\\": ""
         },
         "exclude-from-classmap": [
             "/Tests/"

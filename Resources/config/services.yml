@@ -1,15 +1,15 @@
 #src/Resources/config/services.yml
 parameters:
   #Request bridge
-  pmb.pm_bundle.request_bridge.class: 'PMB\PMBundle\Bridge\RequestBridge'
-  pmb.pm_bundle.request_listener.class: 'PMB\PMBundle\Bridge\RequestListener'
+  pmb.pm_bundle.request_bridge.class: 'Other\Bundle\PMBundle\Bridge\RequestBridge'
+  pmb.pm_bundle.request_listener.class: 'Other\Bundle\PMBundle\Bridge\RequestListener'
 
   #Command controller
-  pmb.pm_bundle.command.start.class: 'PMB\PMBundle\Command\StartCommand'
-  pmb.pm_bundle.command.status.class: 'PMB\PMBundle\Command\StatusCommand'
-  pmb.pm_bundle.command.stop.class: 'PMB\PMBundle\Command\StopCommand'
-  pmb.pm_bundle.command.config.class: 'PMB\PMBundle\Command\ConfigCommand'
-  pmb.pm_bundle.command.slave.class: 'PMB\PMBundle\Command\SlaveCommand'
+  pmb.pm_bundle.command.start.class: 'Other\Bundle\PMBundle\Command\StartCommand'
+  pmb.pm_bundle.command.status.class: 'Other\Bundle\PMBundle\Command\StatusCommand'
+  pmb.pm_bundle.command.stop.class: 'Other\Bundle\PMBundle\Command\StopCommand'
+  pmb.pm_bundle.command.config.class: 'Other\Bundle\PMBundle\Command\ConfigCommand'
+  pmb.pm_bundle.command.slave.class: 'Other\Bundle\PMBundle\Command\SlaveCommand'
 
   #Vendors
   pmb.pm_bundle.vendor.loop.class: 'React\EventLoop\LoopInterface'

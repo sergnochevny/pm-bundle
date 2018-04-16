@@ -3,7 +3,7 @@
  * Copyright (c) 2018. AIT
  */
 
-namespace PMB\PMBundle\PM;
+namespace Other\Bundle\PMBundle\PM;
 
 use React\Socket\ConnectionInterface;
 use React\ChildProcess\Process;

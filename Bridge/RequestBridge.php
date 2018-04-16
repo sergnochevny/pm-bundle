@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace PMB\PMBundle\Bridge;
+namespace Other\Bundle\PMBundle\Bridge;
 
 use Psr\Log\LoggerInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -249,7 +249,7 @@ class RequestBridge{
 
     /**
      * @param bool $debug
-     * @return \PMB\PMBundle\Bridge\RequestBridge
+     * @return \Other\Bundle\PMBundle\Bridge\RequestBridge
      */
     public function setDebug(bool $debug): RequestBridge{
         $this->debug = $debug;

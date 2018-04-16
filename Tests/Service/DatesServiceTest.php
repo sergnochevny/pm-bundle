@@ -20,9 +20,9 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace PMB\PMBundle\Tests\ReactPHPBundle\Service;
+namespace Other\Bundle\PMBundle\Tests\ReactPHPBundle\Service;
 
-use PMB\PMBundle\Service\DatesService;
+use Other\Bundle\PMBundle\Service\DatesService;
 
 /**
  * Class RequestBridgeTest.
@@ -34,7 +34,7 @@ use PMB\PMBundle\Service\DatesService;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \PMB\PMBundle\Service\DatesService
+ * @covers \Other\Bundle\PMBundle\Service\DatesService
  */
 class DatesServiceTest extends \PHPUnit_Framework_TestCase
 {

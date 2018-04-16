@@ -20,15 +20,15 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace PMB\PMBundle\Tests\ReactPHPBundle;
+namespace Other\Bundle\PMBundle\Tests\ReactPHPBundle;
 
 use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use PMB\PMBundle\Bridge\RequestListener;
-use PMB\PMBundle\Command\ReactPHPCommand;
-use PMB\PMBundle\Logger\StdLogger;
+use Other\Bundle\PMBundle\Bridge\RequestListener;
+use Other\Bundle\PMBundle\Command\ReactPHPCommand;
+use Other\Bundle\PMBundle\Logger\StdLogger;
 
 /**
  * Class RequestBridgeTest.
@@ -40,7 +40,7 @@ use PMB\PMBundle\Logger\StdLogger;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \PMB\PMBundle\Command\ReactPHPCommand
+ * @covers \Other\Bundle\PMBundle\Command\ReactPHPCommand
  */
 class ReactPHPCommandTest extends \PHPUnit_Framework_TestCase
 {

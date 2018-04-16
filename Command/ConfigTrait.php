@@ -3,7 +3,7 @@
  * Copyright (c) 2018. AIT
  */
 
-namespace PMB\PMBundle\Command;
+namespace Other\Bundle\PMBundle\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;

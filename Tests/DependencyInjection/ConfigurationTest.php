@@ -20,10 +20,10 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace PMB\PMBundle\Tests\ReactPHPBundle\DependencyInjection;
+namespace Other\Bundle\PMBundle\Tests\ReactPHPBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use PMB\PMBundle\DependencyInjection\Configuration;
+use Other\Bundle\PMBundle\DependencyInjection\Configuration;
 
 /**
  * Class ConfigurationTest.
@@ -35,7 +35,7 @@ use PMB\PMBundle\DependencyInjection\Configuration;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \PMB\PMBundle\DependencyInjection\Configuration
+ * @covers \Other\Bundle\PMBundle\DependencyInjection\Configuration
  */
 class ConfigurationTest extends \PHPUnit_Framework_TestCase
 {

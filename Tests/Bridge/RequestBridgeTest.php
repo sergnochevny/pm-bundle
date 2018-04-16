@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace PMB\PMBundle\Tests\ReactPHPBundle\Bridge;
+namespace Other\Bundle\PMBundle\Tests\ReactPHPBundle\Bridge;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -33,8 +33,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelInterface;
-use PMB\PMBundle\Bridge\RequestBridge;
-use PMB\PMBundle\Service\DatesService;
+use Other\Bundle\PMBundle\Bridge\RequestBridge;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 /**
@@ -47,7 +46,7 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \PMB\PMBundle\Bridge\RequestBridge
+ * @covers \Other\Bundle\PMBundle\Bridge\RequestBridge
  */
 class RequestBridgeTest extends \PHPUnit_Framework_TestCase
 {

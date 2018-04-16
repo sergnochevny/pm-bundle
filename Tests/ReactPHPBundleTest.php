@@ -20,10 +20,10 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace PMB\PMBundle\Tests\ReactPHPBundle;
+namespace Other\Bundle\PMBundle\Tests\ReactPHPBundle;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use PMB\PMBundle\PMBundle;
+use Other\Bundle\PMBundle\PMBundle;
 
 /**
  * Class ConfigurationTest.
@@ -35,7 +35,7 @@ use PMB\PMBundle\PMBundle;
  * @license     http://teknoo.software/license/mit         MIT License
  * @author      Richard Déloge <richarddeloge@gmail.com>
  *
- * @covers \PMB\PMBundle\PMBundle
+ * @covers \Other\Bundle\PMBundle\PMBundle
  */
 class ReactPHPBundleTest extends \PHPUnit_Framework_TestCase
 {

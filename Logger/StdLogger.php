@@ -20,7 +20,7 @@
  * @author      Richard Déloge <richarddeloge@gmail.com>
  */
 
-namespace PMB\PMBundle\Logger;
+namespace Other\Bundle\PMBundle\Logger;
 
 use Psr\Log\AbstractLogger;
 use Psr\Log\LogLevel;

@@ -5,7 +5,7 @@
 
 declare(ticks=1);
 
-namespace PMB\PMBundle\PM;
+namespace Other\Bundle\PMBundle\PM;
 
 use Psr\Log\AbstractLogger;
 use Psr\Log\LogLevel;

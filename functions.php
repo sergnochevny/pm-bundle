@@ -3,7 +3,7 @@
  * Copyright (c) 2018. AIT
  */
 
-namespace PMB\PMBundle;
+namespace Other\Bundle\PMBundle;
 
 /**
  * Checks that all required pcntl functions are available, so not fatal errors would be cause in runtime
