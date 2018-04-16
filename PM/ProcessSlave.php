@@ -8,6 +8,7 @@ declare(ticks=1);
 namespace Other\PmBundle\PM;
 
 use Evenement\EventEmitterInterface;
+use Other\PmBundle\Logger\StdLogger;
 use ReactPCNTL\PCNTL;
 use Other\PmBundle\Debug\BufferingLogger;
 use Other\PmBundle\Bridge\RequestListener;
@@ -20,6 +21,8 @@ use React\Socket\ConnectionInterface;
 use React\Socket\Server;
 use React\Socket\ServerInterface;
 use React\Socket\UnixConnector;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Debug\ErrorHandler;
 
 class ProcessSlave{
@@ -41,6 +44,10 @@ class ProcessSlave{
      * @var LoopInterface
      */
     protected $loop;
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
     /**
      * @var \Psr\Log\LoggerInterface
      */
@@ -91,15 +98,17 @@ class ProcessSlave{
      */
     public static $slave;
 
-    public function __construct(LoopInterface $loop, RequestListener $requestListener, array $config = []){
+    public function __construct(LoopInterface $loop, RequestListener $requestListener, array $config = [], OutputInterface $output){
 
         $this->loop = $loop;
+        $this->output = $output;
         $this->requestListener = $requestListener;
 
         $this->setSocketPath($config['socket-path']);
         $this->setSocketScheme($config['socket-scheme']);
 
         $this->config = $config;
+
     }
 
     /**
@@ -282,7 +291,16 @@ class ProcessSlave{
          */
             function($controller){
                 $this->controller = $controller;
-                $this->logger = new ProcessSlaveLogger($this->controller);
+                //$this->logger = new ProcessSlaveLogger($this->controller);
+
+                $this->logger = new StdLogger();
+
+                //Configure logger
+                $this->logger->setStdOutput($this->output);
+                if ($this->output instanceof ConsoleOutputInterface) {
+                    $this->logger->setStdError($this->output->getErrorOutput());
+                }
+
                 $this->requestListener->getBridge()
                     ->setDebug((bool)$this->isDebug())
                     ->setLogger($this->logger);
