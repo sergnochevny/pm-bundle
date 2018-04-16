@@ -75,6 +75,12 @@ trait ConfigTrait
         return '';
     }
 
+    /**
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @return array|mixed
+     * @throws \Exception
+     */
     protected function loadConfig(InputInterface $input, OutputInterface $output)
     {
         $config = [];

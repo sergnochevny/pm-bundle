@@ -100,7 +100,11 @@ class SlavePool
      */
     public function getByStatus($status)
     {
-        return array_filter($this->slaves, function ($slave) use ($status) {
+        return array_filter(/**
+         * @param $slave
+         * @return bool
+         */
+            $this->slaves, function ($slave) use ($status) {
             return $status === Slave::ANY || $status === $slave->getStatus();
         });
     }

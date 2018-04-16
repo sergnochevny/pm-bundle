@@ -46,7 +46,7 @@ class DoctrineCompilerPass implements CompilerPassInterface
         if ($container->hasParameter('doctrine.dbal.connection_factory.class')) {
             $container->setParameter(
                 'doctrine.dbal.connection_factory.class',
-                'Other\PmBundle\\Doctrine\\ConnectionFactory'
+                'Other\\PmBundle\\Doctrine\\ConnectionFactory'
             );
         }
     }

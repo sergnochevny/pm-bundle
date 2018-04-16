@@ -8,7 +8,6 @@ declare(ticks=1);
 namespace Other\PmBundle\PM;
 
 use Psr\Log\AbstractLogger;
-use Psr\Log\LogLevel;
 use React\Socket\ConnectionInterface;
 
 class ProcessSlaveLogger extends AbstractLogger{

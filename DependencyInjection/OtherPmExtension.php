@@ -41,8 +41,10 @@ use Symfony\Component\DependencyInjection\Loader;
  */
 class OtherPmExtension extends Extension
 {
+
     /**
      * {@inheritdoc}
+     * @throws \Exception
      */
     public function load(array $configs, ContainerBuilder $container): OtherPmExtension
     {

@@ -9,7 +9,6 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
 
 class ConfigCommand extends ContainerAwareCommand
 {
@@ -17,6 +16,7 @@ class ConfigCommand extends ContainerAwareCommand
 
     /**
      * {@inheritdoc}
+     * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
      */
     protected function configure()
     {
@@ -30,6 +30,12 @@ class ConfigCommand extends ContainerAwareCommand
         $this->configurePPMOptions($this);
     }
 
+    /**
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @return int|null
+     * @throws \Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $configPath = $this->getConfigPath($input, true);
