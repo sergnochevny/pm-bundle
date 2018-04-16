@@ -111,11 +111,6 @@ class ProcessManager{
     protected $appBootstrap;
 
     /**
-     * @var string|null
-     */
-    protected $appenv;
-
-    /**
      * @var bool
      */
     protected $debug = false;
@@ -551,20 +546,6 @@ class ProcessManager{
      */
     public function setPhpCgiExecutable($phpCgiExecutable){
         $this->phpCgiExecutable = $phpCgiExecutable;
-    }
-
-    /**
-     * @param string|null $appenv
-     */
-    public function setAppEnv($appenv){
-        $this->appenv = $appenv;
-    }
-
-    /**
-     * @return ?string
-     */
-    public function getAppEnv(){
-        return $this->appenv;
     }
 
     /**
