@@ -591,10 +591,10 @@ class ProcessManager{
         Debug::enable();
 
         // make whatever is necessary to disable all stuff that could buffer output
-        ini_set('zlib.output_compression', 0);
-        ini_set('output_buffering', 0);
-        ini_set('implicit_flush', 1);
-        ob_implicit_flush(1);
+//        ini_set('zlib.output_compression', 0);
+//        ini_set('output_buffering', 0);
+//        ini_set('implicit_flush', 1);
+//        ob_implicit_flush(1);
 
         $this->loop = Factory::create();
         $this->controller = new Server($this->getControllerSocketPath(), $this->loop);
