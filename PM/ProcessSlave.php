@@ -117,6 +117,7 @@ class ProcessSlave{
      *
      */
     protected function bootstrap(){
+        usleep(500000);
         $this->sendMessage($this->controller, 'ready');
     }
 
