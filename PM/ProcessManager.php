@@ -219,54 +219,6 @@ class ProcessManager{
     }
 
     /**
-     * A slave sent a `status` command.
-     *
-     * @param array $data
-     * @param ConnectionInterface $conn
-     */
-    protected function commandStatus(array $data, ConnectionInterface $conn){
-        // remove nasty info about worker's bootstrap fail
-        $conn->removeAllListeners('close');
-        if($this->output->isVeryVerbose()) {
-            $conn->on('close', function(){
-                $this->output->writeln('Status command requested');
-            });
-        }
-
-        // create port -> requests map
-        $requests = array_reduce(
-            $this->slaves->getByStatus(Slave::ANY),
-            function($carry, Slave $slave){
-                $carry[$slave->getPort()] = 0 + $slave->getHandledRequests();
-
-                return $carry;
-            },
-            []
-        );
-
-        switch($this->status) {
-            case self::STATE_STARTING:
-                $status = 'starting';
-                break;
-            case self::STATE_RUNNING:
-                $status = 'healthy';
-                break;
-            case self::STATE_EMERGENCY:
-                $status = 'offline';
-                break;
-            default:
-                $status = 'unknown';
-        }
-
-        $conn->end(json_encode([
-            'status' => $status,
-            'workers' => $this->slaveCount,
-            'handled_requests' => $this->handledRequests,
-            'handled_requests_per_worker' => $requests
-        ]));
-    }
-
-    /**
      * A slave sent a `stop` command.
      *
      * @param array $data
