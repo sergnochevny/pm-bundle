@@ -482,18 +482,19 @@ class ProcessManager{
                 $this->output->write("<error>$data</error>");
             }
         );
-        $process->stdout->on(
-            'data',
-            function($data) use ($port){
-                if($this->output->isVeryVerbose()) {
-                    if($this->lastWorkerErrorPrintBy !== $port) {
-                        $this->output->writeln("<info>--- Worker $port stdout ---</info>");
-                        $this->lastWorkerErrorPrintBy = $port;
-                    }
-                    $this->output->write("<info>$data</info>");
-                }
-            }
-        );
+
+//        $process->stdout->on(
+//            'data',
+//            function($data) use ($port){
+//                if($this->output->isVeryVerbose()) {
+//                    if($this->lastWorkerErrorPrintBy !== $port) {
+//                        $this->output->writeln("<info>--- Worker $port stdout ---</info>");
+//                        $this->lastWorkerErrorPrintBy = $port;
+//                    }
+//                    $this->output->write("<info>$data</info>");
+//                }
+//            }
+//        );
 
         if($this->output->isVeryVerbose()) {
             $this->output->writeln(sprintf("Worker pid %d has been started", $process->getPid()));
