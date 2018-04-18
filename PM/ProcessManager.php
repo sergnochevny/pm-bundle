@@ -111,6 +111,11 @@ class ProcessManager{
     protected $appBootstrap;
 
     /**
+     * @var string|null
+     */
+    protected $appenv;
+
+    /**
      * @var bool
      */
     protected $debug = false;
@@ -223,6 +228,7 @@ class ProcessManager{
      *
      * @param array $data
      * @param ConnectionInterface $conn
+     * @throws \Exception
      */
     protected function commandStop(array $data, ConnectionInterface $conn){
         if($this->output->isVeryVerbose()) {
@@ -455,6 +461,7 @@ class ProcessManager{
 
     /**
      * Handles termination signals, so we can gracefully stop all servers.
+     * @throws \Exception
      */
     public function shutdown($graceful = false){
         if($this->status === self::STATE_SHUTDOWN) {
@@ -502,6 +509,20 @@ class ProcessManager{
     }
 
     /**
+     * @param string|null $appenv
+     */
+    public function setAppEnv($appenv){
+        $this->appenv = $appenv;
+    }
+
+    /**
+     * @return ?string
+     */
+    public function getAppEnv(){
+        return $this->appenv;
+    }
+
+    /**
      * @return boolean
      */
     public function isLogging(){
@@ -544,10 +565,10 @@ class ProcessManager{
         Debug::enable();
 
         // make whatever is necessary to disable all stuff that could buffer output
-//        ini_set('zlib.output_compression', 0);
-//        ini_set('output_buffering', 0);
-//        ini_set('implicit_flush', 1);
-//        ob_implicit_flush(1);
+        ini_set('zlib.output_compression', 0);
+        ini_set('output_buffering', 0);
+        ini_set('implicit_flush', 1);
+        ob_implicit_flush(1);
 
         $this->loop = Factory::create();
         $this->controller = new Server($this->getControllerSocketPath(), $this->loop);

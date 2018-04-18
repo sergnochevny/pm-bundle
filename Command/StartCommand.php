@@ -47,6 +47,7 @@ class StartCommand extends ContainerAwareCommand
 
         $handler = new ProcessManager($output, $config['port'], $config['host'], $config['workers']);
 
+        $handler->setAppEnv($config['app-env']);
         $handler->setDebug((boolean)$config['debug']);
         $handler->setLogging((boolean)$config['logging']);
         $handler->setMaxRequests($config['max-requests']);

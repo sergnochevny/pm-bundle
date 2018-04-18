@@ -16,7 +16,6 @@ use Other\PmBundle\Bridge\RequestListener;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\EventLoop\LoopInterface;
-use React\Http\Server as HttpServer;
 use React\Promise\Promise;
 use React\Socket\ConnectionInterface;
 use React\Socket\Server;
