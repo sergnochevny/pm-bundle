@@ -106,7 +106,7 @@ class ProcessSlave{
         $this->output = $output;
         $this->requestListener = $requestListener;
 
-        $this->setMaxConcurrentRequests((int) $config['max_requests']);
+        $this->setMaxConcurrentRequests((int) $config['max-requests']);
         $this->setSocketPath($config['socket-path']);
         $this->setSocketScheme($config['socket-scheme']);
 

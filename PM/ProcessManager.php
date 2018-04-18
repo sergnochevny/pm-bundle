@@ -572,8 +572,6 @@ class ProcessManager{
      * @throws \Exception
      */
     public function run(){
-        Debug::enable();
-
         // make whatever is necessary to disable all stuff that could buffer output
         ini_set('zlib.output_compression', 0);
         ini_set('output_buffering', 0);
