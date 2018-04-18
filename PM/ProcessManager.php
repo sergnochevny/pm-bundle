@@ -191,12 +191,22 @@ class ProcessManager{
      * @param string $host
      * @param int $slaveCount
      */
-    public function __construct(OutputInterface $output, $port = 8080, $host = '127.0.0.1', $slaveCount = 8){
-        $this->output = $output;
-        $this->host = $host;
-        $this->port = $port;
+    public function __construct(OutputInterface $output, $config){
 
-        $this->slaveCount = $slaveCount;
+        $this->output = $output;
+        $this->host = $config['host'];
+        $this->port = $config['port'];
+
+        $this->setAppEnv($config['app-env']);
+        $this->setDebug((boolean)$config['debug']);
+        $this->setLogging((boolean)$config['logging']);
+        $this->setMaxRequests($config['max-requests']);
+        $this->setPhpCgiExecutable($config['cgi-path']);
+        $this->setSocketPath($config['socket-path']);
+        $this->setSocketScheme($config['socket-scheme']);
+        $this->setPIDFile($config['pidfile']);
+
+        $this->slaveCount = $config['workers'];
         $this->slaves = new SlavePool(); // create early, used during shutdown
 
         register_shutdown_function([$this, 'shutdown']);

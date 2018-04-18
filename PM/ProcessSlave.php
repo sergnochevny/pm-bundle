@@ -91,6 +91,8 @@ class ProcessSlave{
      * @var string
      */
     protected $socketScheme = 'tcp';
+
+    protected $maxConcurrentRequests = null;
     /**
      * Current instance, used by global functions.
      *
@@ -104,11 +106,11 @@ class ProcessSlave{
         $this->output = $output;
         $this->requestListener = $requestListener;
 
+        $this->setMaxConcurrentRequests($config['max_requests']);
         $this->setSocketPath($config['socket-path']);
         $this->setSocketScheme($config['socket-scheme']);
 
         $this->config = $config;
-
     }
 
     /**
@@ -207,6 +209,22 @@ class ProcessSlave{
     }
 
     /**
+     * @return null
+     */
+    public function getMaxConcurrentRequests(){
+        return $this->maxConcurrentRequests;
+    }
+
+    /**
+     * @param null $maxConcurrentRequests
+     */
+    public function setMaxConcurrentRequests(int $maxConcurrentRequests): void{
+        if(!empty($maxConcurrentRequests)) {
+            $this->maxConcurrentRequests = $maxConcurrentRequests;
+        }
+    }
+
+    /**
      * @return boolean
      */
     public function isDebug(){
@@ -298,7 +316,7 @@ class ProcessSlave{
 
                 //Configure logger
                 $this->logger->setStdOutput($this->output);
-                if ($this->output instanceof ConsoleOutputInterface) {
+                if($this->output instanceof ConsoleOutputInterface) {
                     $this->logger->setStdError($this->output->getErrorOutput());
                 }
 
@@ -317,7 +335,7 @@ class ProcessSlave{
                 $socketPath = $this->getSlaveSocketPath($this->config['host'], $this->config['port']);
                 $this->server = new Server($socketPath, $this->loop, $this->config);
 
-                $httpServer = new HttpServer([$this, 'onRequest']);
+                $httpServer = new HttpServer([$this, 'onRequest'], $this->getMaxConcurrentRequests());
                 $httpServer->listen($this->server);
 
                 $this->sendMessage($this->controller, 'register', ['pid' => getmypid(), 'port' => $this->config['port']]);

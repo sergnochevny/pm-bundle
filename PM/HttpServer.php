@@ -31,19 +31,21 @@ final class HttpServer extends EventEmitter{
      */
     private $streamingServer;
 
-    private $max_concurrent_requests;
+    private $maxConcurrentRequests;
 
     /**
      * @see StreamingServer::__construct()
      * @param $requestHandler
+     * @param null $maxConcurrentRequests
      * @throws \InvalidArgumentException
      */
-    public function __construct($requestHandler){
+    public function __construct($requestHandler, $maxConcurrentRequests = null){
         if(!is_callable($requestHandler) && !is_array($requestHandler)) {
             throw new InvalidArgumentException('Invalid request handler given');
         }
 
         $middleware = [];
+        $this->setMaxConcurrentRequests($maxConcurrentRequests);
         $middleware[] = new LimitConcurrentRequestsMiddleware($this->getConcurrentRequestsLimit());
         $middleware[] = new RequestBodyBufferMiddleware();
         // Checking for an empty string because that is what a boolean
@@ -97,15 +99,15 @@ final class HttpServer extends EventEmitter{
      * @return mixed
      */
     public function getMaxConcurrentRequests(){
-        return $this->max_concurrent_requests;
+        return $this->maxConcurrentRequests;
     }
 
     /**
-     * @param int $max_requests
+     * @param int $maxRequests
      */
-    public function setMaxConcurrentRequests(int $max_requests): void{
-        if(!empty($max_requests)) {
-            $this->max_concurrent_requests = $max_requests;
+    public function setMaxConcurrentRequests(int $maxRequests): void{
+        if(!empty($maxRequests)) {
+            $this->maxConcurrentRequests = $maxRequests;
         }
     }
 
