@@ -92,7 +92,7 @@ class ProcessSlave{
      */
     protected $socketScheme = 'tcp';
 
-    protected $maxConcurrentRequests = null;
+    protected $maxConcurrentRequests = 0;
     /**
      * Current instance, used by global functions.
      *
@@ -216,9 +216,9 @@ class ProcessSlave{
     }
 
     /**
-     * @param null $maxConcurrentRequests
+     * @param int $maxConcurrentRequests
      */
-    public function setMaxConcurrentRequests(int $maxConcurrentRequests): void{
+    public function setMaxConcurrentRequests(int $maxConcurrentRequests = 0): void{
         if(!empty($maxConcurrentRequests)) {
             $this->maxConcurrentRequests = $maxConcurrentRequests;
         }

@@ -31,15 +31,15 @@ final class HttpServer extends EventEmitter{
      */
     private $streamingServer;
 
-    private $maxConcurrentRequests;
+    private $maxConcurrentRequests = 0;
 
     /**
      * @see StreamingServer::__construct()
      * @param $requestHandler
-     * @param null $maxConcurrentRequests
+     * @param int $maxConcurrentRequests
      * @throws \InvalidArgumentException
      */
-    public function __construct($requestHandler, $maxConcurrentRequests = null){
+    public function __construct($requestHandler, int $maxConcurrentRequests = 0){
         if(!is_callable($requestHandler) && !is_array($requestHandler)) {
             throw new InvalidArgumentException('Invalid request handler given');
         }
@@ -78,8 +78,8 @@ final class HttpServer extends EventEmitter{
      * @throws \InvalidArgumentException
      */
     private function getConcurrentRequestsLimit(){
-        if(!empty($this->max_concurrent_requests)) {
-            return $this->max_concurrent_requests;
+        if(!empty($this->getMaxConcurrentRequests())) {
+            return $this->getMaxConcurrentRequests();
         }
         if(ini_get('memory_limit') == -1) {
             return self::MAXIMUM_CONCURRENT_REQUESTS;
