@@ -48,7 +48,7 @@ class StopCommand extends ContainerAwareCommand
         $handler = new ProcessClient();
         $handler->setSocketPath($config['socket-path']);
 
-        $handler->stopProcessManager(function ($status) use ($output) {
+        $handler->stopProcessManager(function ($data) use ($output) {
             $output->writeln('Requested process manager to stop.');
         });
 

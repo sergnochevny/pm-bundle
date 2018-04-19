@@ -155,11 +155,6 @@ class ProcessManager{
      */
     protected $phpCgiExecutable = '';
 
-    /**
-     * @var null|int
-     */
-    protected $lastWorkerErrorPrintBy;
-
     protected $filesToTrack = [];
     protected $filesLastMTime = [];
     protected $filesLastMd5 = [];
@@ -440,30 +435,19 @@ class ProcessManager{
         $this->slaves->add($slave);
 
         $process->start($this->loop);
-        $process->stderr->on(
-            'data',
+        $process->stderr->on('data',
             function($data) use ($port){
-                if($this->lastWorkerErrorPrintBy !== $port) {
-                    $this->output->writeln("<info>--- Worker $port stderr ---</info>");
-                    $this->lastWorkerErrorPrintBy = $port;
-                }
-                $this->output->write("<error>$data</error>");
+                $this->output->write("<error>Worker $port stderr:" . $data . "</error>");
             }
         );
 
-//        $process->stdout->on(
-//            'data',
-//            function($data) use ($port){
-//                if($this->output->isVeryVerbose()) {
-//                    if($this->lastWorkerErrorPrintBy !== $port) {
-//                        $this->output->writeln("<info>--- Worker $port stdout ---</info>");
-//                        $this->lastWorkerErrorPrintBy = $port;
-//                    }
-//                    $this->output->write("<info>$data</info>");
-//                }
-//            }
-//        );
-
+        if($this->output->isVeryVerbose()) {
+            $process->stdout->on('data',
+                function($data) use ($port){
+                    $this->output->write("<info>Worker $port stdout:" . $data . "</info>");
+                }
+            );
+        }
         if($this->output->isVeryVerbose()) {
             $this->output->writeln(sprintf("Worker pid %d has been started", $process->getPid()));
         }
@@ -572,7 +556,7 @@ class ProcessManager{
      * @throws \Exception
      */
     public function run(){
-        if($this->debug && class_exists(Debug::class)){
+        if($this->debug && class_exists(Debug::class)) {
             Debug::enable();
         }
 

@@ -10,8 +10,8 @@ use React\EventLoop\LoopInterface;
 use React\Socket\ConnectionInterface;
 use React\Socket\UnixConnector;
 
-class ProcessClient
-{
+class ProcessClient{
+
     use ProcessCommunicationTrait;
 
     /**
@@ -19,8 +19,7 @@ class ProcessClient
      */
     protected $loop;
 
-    public function __construct()
-    {
+    public function __construct(){
         $this->loop = Factory::create();
     }
 
@@ -30,8 +29,7 @@ class ProcessClient
      * @param $callback
      * @throws \RuntimeException
      */
-    protected function request($command, $options, $callback)
-    {
+    protected function request($command, $options, $callback){
         $data = [
             'cmd' => $command,
             'options' => $options
@@ -41,14 +39,14 @@ class ProcessClient
         $unixSocket = $this->getControllerSocketPath(false);
 
         $connector->connect($unixSocket)->done(
-            function (ConnectionInterface $connection) use ($data, $callback) {
+            function(ConnectionInterface $connection) use ($data, $callback){
                 $result = '';
 
-                $connection->on('data', function ($data) use (&$result) {
+                $connection->on('data', function($data) use (&$result){
                     $result .= $data;
                 });
 
-                $connection->on('close', function () use ($callback, &$result) {
+                $connection->on('close', function() use ($callback, &$result){
                     $callback($result);
                 });
 
@@ -61,21 +59,8 @@ class ProcessClient
      * @param callable $callback
      * @throws \RuntimeException
      */
-    public function getStatus(callable $callback)
-    {
-        $this->request('status', [], function ($result) use ($callback) {
-            $callback(json_decode($result, true));
-        });
-        $this->loop->run();
-    }
-
-    /**
-     * @param callable $callback
-     * @throws \RuntimeException
-     */
-    public function stopProcessManager(callable $callback)
-    {
-        $this->request('stop', [], function ($result) use ($callback) {
+    public function stopProcessManager(callable $callback){
+        $this->request('stop', [], function($result) use ($callback){
             $callback(json_decode($result, true));
         });
         $this->loop->run();

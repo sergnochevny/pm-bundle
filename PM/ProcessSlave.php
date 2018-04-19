@@ -7,11 +7,8 @@ declare(ticks=1);
 
 namespace Other\PmBundle\PM;
 
-use Evenement\EventEmitterInterface;
 use Other\PmBundle\Logger\StdLogger;
-use Other\PmBundle\Logger\ProcessSlaveLogger;
 use ReactPCNTL\PCNTL;
-use Other\PmBundle\Debug\BufferingLogger;
 use Other\PmBundle\Bridge\RequestListener;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -23,6 +20,7 @@ use React\Socket\ServerInterface;
 use React\Socket\UnixConnector;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Debug\BufferingLogger;
 use Symfony\Component\Debug\ErrorHandler;
 
 class ProcessSlave{
@@ -64,7 +62,7 @@ class ProcessSlave{
      */
     protected $inShutdown = false;
     /**
-     * @var BufferingLogger|\Symfony\Component\Debug\BufferingLogger
+     * @var \Symfony\Component\Debug\BufferingLogger
      */
     protected $errorLogger;
     /**
@@ -106,7 +104,7 @@ class ProcessSlave{
         $this->output = $output;
         $this->requestListener = $requestListener;
 
-        $this->setMaxConcurrentRequests((int) $config['max-requests']);
+        $this->setMaxConcurrentRequests((int)$config['max-requests']);
         $this->setSocketPath($config['socket-path']);
         $this->setSocketScheme($config['socket-scheme']);
 
@@ -134,29 +132,13 @@ class ProcessSlave{
             $remoteIp = $request->getServerParams()['REMOTE_ADDR'];
             $statusCode = $response->getStatusCode();
 
-            if($statusCode < 400) {
-                $requestString = "<info>$requestString</info>";
-                $statusCode = "<info>$statusCode</info>";
-            }
-
             $message = str_replace(
                 [
-                    '$remote_addr',
-                    '$remote_user',
-                    '$time_local',
-                    '$request',
-                    '$status',
-                    '$bytes_sent',
-                    '$http_referer',
-                    '$http_user_agent',
+                    '$remote_addr', '$remote_user', '$time_local', '$request', '$status',
+                    '$bytes_sent', '$http_referer', '$http_user_agent',
                 ],
                 [
-                    $remoteIp,
-                    '-', //todo remote_user
-                    $timeLocal,
-                    $requestString,
-                    $statusCode,
-                    $size,
+                    $remoteIp, '-', $timeLocal, $requestString, $statusCode, $size,
                     $request->hasHeader('Referer') ? $request->getHeaderLine('Referer') : '-',
                     $request->hasHeader('User-Agent') ? $request->getHeaderLine('User-Agent') : '-'
                 ],
@@ -165,25 +147,14 @@ class ProcessSlave{
 
             if($response->getStatusCode() >= 400) {
                 $message = "<error>$message</error>";
+            } else {
+                $message = "<info>$message</info>";
             }
 
             $this->logger->info($message);
         };
 
-        if($response->getBody() instanceof EventEmitterInterface) {
-            /** @var EventEmitterInterface $body */
-            $body = $response->getBody();
-            $size = strlen(\RingCentral\Psr7\str($response));
-            $body->on('data', function($data) use (&$size){
-                $size += strlen($data);
-            });
-            //using `close` event since `end` is not fired for files
-            $body->on('close', function() use (&$size, $logFunction){
-                $logFunction($size);
-            });
-        } else {
-            $logFunction(strlen(\RingCentral\Psr7\str($response)));
-        }
+        $logFunction(strlen(\RingCentral\Psr7\str($response)));
     }
 
     /**
@@ -298,7 +269,7 @@ class ProcessSlave{
      */
     public function run(){
 
-        $this->errorLogger = BufferingLogger::create();
+        $this->errorLogger = new BufferingLogger();
         ErrorHandler::register(new ErrorHandler($this->errorLogger));
 
         $connector = new UnixConnector($this->loop);
