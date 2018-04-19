@@ -437,14 +437,14 @@ class ProcessManager{
         $process->start($this->loop);
         $process->stderr->on('data',
             function($data) use ($port){
-                $this->output->write("<error>Worker $port stderr:" . $data . "</error>");
+                $this->output->write("<error>" . $data . "</error>");
             }
         );
 
         if($this->output->isVeryVerbose()) {
             $process->stdout->on('data',
                 function($data) use ($port){
-                    $this->output->write("<info>Worker $port stdout:" . $data . "</info>");
+                    $this->output->write("<info>" . $data . "</info>");
                 }
             );
         }
