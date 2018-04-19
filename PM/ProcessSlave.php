@@ -8,6 +8,7 @@ declare(ticks=1);
 namespace Other\PmBundle\PM;
 
 use Evenement\EventEmitterInterface;
+use Other\PmBundle\Logger\SlaveLogger;
 use Other\PmBundle\Logger\StdLogger;
 use ReactPCNTL\PCNTL;
 use Other\PmBundle\Bridge\RequestListener;
@@ -295,15 +296,7 @@ class ProcessSlave{
          */
             function($controller){
                 $this->controller = $controller;
-
-                $this->logger = new StdLogger();
-
-                //Configure logger
-                $this->logger->setStdOutput($this->output);
-                if($this->output instanceof ConsoleOutputInterface) {
-                    $this->logger->setStdError($this->output->getErrorOutput());
-                }
-
+                $this->logger = new SlaveLogger($controller);
                 $this->requestListener->getBridge()
                     ->setDebug((bool)$this->isDebug())
                     ->setLogger($this->logger);
