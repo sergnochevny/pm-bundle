@@ -21,6 +21,7 @@ use React\Socket\ServerInterface;
 use React\Socket\UnixConnector;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Debug\BufferingLogger;
 use Symfony\Component\Debug\ErrorHandler;
 
 class ProcessSlave{
@@ -294,7 +295,6 @@ class ProcessSlave{
          */
             function($controller){
                 $this->controller = $controller;
-                //$this->logger = new ProcessSlaveLogger($this->controller);
 
                 $this->logger = new StdLogger();
 
