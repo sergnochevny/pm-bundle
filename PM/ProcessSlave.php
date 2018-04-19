@@ -7,6 +7,7 @@ declare(ticks=1);
 
 namespace Other\PmBundle\PM;
 
+use Evenement\EventEmitterInterface;
 use Other\PmBundle\Logger\StdLogger;
 use ReactPCNTL\PCNTL;
 use Other\PmBundle\Bridge\RequestListener;
@@ -20,7 +21,6 @@ use React\Socket\ServerInterface;
 use React\Socket\UnixConnector;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Debug\BufferingLogger;
 use Symfony\Component\Debug\ErrorHandler;
 
 class ProcessSlave{
@@ -154,7 +154,20 @@ class ProcessSlave{
             $this->logger->info($message);
         };
 
-        $logFunction(strlen(\RingCentral\Psr7\str($response)));
+        if($response->getBody() instanceof EventEmitterInterface) {
+            /** @var EventEmitterInterface $body */
+            $body = $response->getBody();
+            $size = strlen(\RingCentral\Psr7\str($response));
+            $body->on('data', function($data) use (&$size){
+                $size += strlen($data);
+            });
+            //using `close` event since `end` is not fired for files
+            $body->on('close', function() use (&$size, $logFunction){
+                $logFunction($size);
+            });
+        } else {
+            $logFunction(strlen(\RingCentral\Psr7\str($response)));
+        }
     }
 
     /**

@@ -108,65 +108,6 @@ class RequestBridge{
     }
 
     /**
-     * To add in the log system the result of the request, following the log format defined for Apache HTTP.
-     * If no logger has been defined, this operation is ignored.
-     *
-     * @param SymfonyRequest $request
-     * @param SymfonyResponse $response
-     */
-    protected function logRequestResponse(SymfonyRequest $request, SymfonyResponse $response){
-        if(!$this->logger instanceof LoggerInterface) {
-            return;
-        }
-
-        $message = \sprintf(
-            '%s - [%s] "%s %s" %s %s',
-            $request->getClientIp(),
-            date('d/M/Y H:i:s O'),
-            $request->getRealMethod(),
-            $request->getUri(),
-            $response->getStatusCode(),
-            \strlen($response->getContent())
-        );
-
-        $this->logger->info($message);
-
-        if($this->debug) {
-            $message = \sprintf(
-                "Request: %s \n Response: %s",
-                $request,
-                $response
-            );
-            $this->logger->debug($message);
-        }
-    }
-
-    /**
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     */
-    protected function logRequest(SymfonyRequest $request){
-        if(!($this->logger instanceof LoggerInterface) || !$this->debug) {
-            return;
-        }
-
-        $message = \sprintf(
-            '%s - [%s] "%s %s"',
-            $request->getClientIp(),
-            date('d/M/Y H:i:s O'),
-            $request->getRealMethod(),
-            $request->getUri()
-        );
-
-        $this->logger->info($message);
-
-        $message = \sprintf(
-            "Request: %s",
-            $request
-        );
-        $this->logger->debug($message);
-    }
-
-    /**
      * To add in the log system an error durring the request.
      * If no logger has been defined, this operation is ignored.
      *
@@ -205,31 +146,10 @@ class RequestBridge{
      * @throws \Exception
      */
     protected function executePreparedRequest(SymfonyRequest $request, callable $resolve): RequestBridge{
-        if($this->debug) {
-            $this->logger->debug('Start handling request');
-        }
 
         $sfResponse = $this->kernel->handle($request);
-
-        if($this->debug) {
-            $this->logger->debug('Request handled');
-            $this->logger->debug('Resolve request');
-        }
-
         $resolve($this->diactorosFactory->createResponse($sfResponse));
-
-        if($this->debug) {
-            $this->logger->debug('Request resolved');
-        }
-
-        if($this->debug) {
-            $this->logger->debug('Terminate handling');
-        }
         $this->terminate($request, $sfResponse);
-        if($this->debug) {
-            $this->logger->debug('Stop handling request');
-        }
-        $this->logRequestResponse($request, $sfResponse);
 
         return $this;
     }
@@ -279,7 +199,6 @@ class RequestBridge{
     public function run(ServerRequestInterface $request, callable $resolve): RequestBridge{
         try {
             $sfRequest = $this->httpFoundationFcty->createRequest($request);
-            $this->logRequest($sfRequest);
 
             return $this->executePreparedRequest($sfRequest, $resolve);
         } catch(HttpException $error) {
