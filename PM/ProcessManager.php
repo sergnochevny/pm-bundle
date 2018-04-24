@@ -8,13 +8,14 @@ declare(ticks=1);
 namespace Other\PmBundle\PM;
 
 use Psr\Log\LogLevel;
-use ReactPCNTL\PCNTL;
 use React\ChildProcess\Process;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
+use React\EventLoop\TimerInterface;
 use React\Socket\ConnectionInterface;
 use React\Socket\Server;
 use React\Socket\ServerInterface;
+use ReactPCNTL\PCNTL;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\Process\PhpExecutableFinder;
@@ -96,6 +97,11 @@ class ProcessManager{
     protected $controller;
 
     /**
+     * @var ServerInterface
+     */
+    protected $web;
+
+    /**
      * @var int
      */
     protected $slaveCount;
@@ -148,16 +154,30 @@ class ProcessManager{
     protected $inReload = false;
 
     /**
+     * The number of seconds to wait before force closing a worker during a reload.
+     *
+     * @var int
+     */
+    protected $reloadTimeout = 30;
+    /**
+     * Keep track of a single reload timer to prevent multiple reloads spawning several overlapping timers.
+     *
+     * @var TimerInterface
+     */
+    protected $reloadTimeoutTimer;
+    /**
+     * An associative (port->slave) array of slaves currently in a graceful reload phase.
+     *
+     * @var Slave[]
+     */
+    protected $slavesToReload = [];
+    /**
      * Full path to the php-cgi executable. If not set, we try to determine the
      * path automatically.
      *
      * @var string
      */
     protected $phpCgiExecutable = '';
-
-    protected $filesToTrack = [];
-    protected $filesLastMTime = [];
-    protected $filesLastMd5 = [];
 
     /**
      * Counter of handled clients
@@ -208,13 +228,40 @@ class ProcessManager{
     }
 
     /**
+     * To be called after all workers have been terminated and the event loop is no longer in use.
+     */
+    private function quit(){
+        $this->output->writeln('Stopping the process manager.');
+
+        // this method is also called during startup when something crashed, so
+        // make sure we don't operate on nulls.
+        if($this->controller) {
+            @$this->controller->close();
+        }
+        if($this->web) {
+            @$this->web->close();
+        }
+
+        if($this->loop) {
+            $this->loop->stop();
+        }
+
+        unlink($this->pidfile);
+        exit;
+    }
+
+    /**
      * @param Slave $slave
      * @throws \Exception
      */
     private function terminateSlave($slave){
         // set closed and remove from pool
         $slave->close();
-        $this->slaves->remove($slave);
+
+        try {
+            $this->slaves->remove($slave);
+        } catch(\Exception $ignored) {
+        }
 
         /** @var Process */
         $process = $slave->getProcess();
@@ -226,6 +273,54 @@ class ProcessManager{
         if(is_int($pid)) {
             posix_kill($pid, SIGKILL); // make sure it's really dead
         }
+    }
+
+    /**
+     * A slave sent a `status` command.
+     *
+     * @param array $data
+     * @param ConnectionInterface $conn
+     */
+    protected function commandStatus(array $data, ConnectionInterface $conn){
+        // remove nasty info about worker's bootstrap fail
+        $conn->removeAllListeners('close');
+        if($this->output->isVeryVerbose()) {
+            $conn->on('close', function(){
+                $this->output->writeln('Status command requested');
+            });
+        }
+
+        // create port -> requests map
+        $requests = array_reduce(
+            $this->slaves->getByStatus(Slave::ANY),
+            function($carry, Slave $slave){
+                $carry[$slave->getPort()] = 0 + $slave->getHandledRequests();
+
+                return $carry;
+            },
+            []
+        );
+
+        switch($this->status) {
+            case self::STATE_STARTING:
+                $status = 'starting';
+                break;
+            case self::STATE_RUNNING:
+                $status = 'healthy';
+                break;
+            case self::STATE_EMERGENCY:
+                $status = 'offline';
+                break;
+            default:
+                $status = 'unknown';
+        }
+
+        $conn->end(json_encode([
+            'status' => $status,
+            'workers' => $this->slaves->getStatusSummary(),
+            'handled_requests' => $this->handledRequests,
+            'handled_requests_per_worker' => $requests
+        ]));
     }
 
     /**
@@ -244,7 +339,7 @@ class ProcessManager{
 
         $conn->end(json_encode([]));
 
-        $this->shutdown(true);
+        $this->shutdown();
     }
 
     /**
@@ -288,7 +383,7 @@ class ProcessManager{
         try {
             $slave = $this->slaves->getByConnection($conn);
         } catch(\Exception $e) {
-            $this->output->writeln($e->getMessage());
+            $this->output->writeln('<error>' . $e->getMessage() . '</error>');
 
             return;
         }
@@ -378,13 +473,32 @@ class ProcessManager{
     }
 
     /**
+     * Close a slave
+     * @param Slave $slave
+     * @return void
+     * @throws \Exception
+     */
+    protected function closeSlave($slave){
+        $slave->close();
+        $this->slaves->remove($slave);
+
+        if(!empty($slave->getConnection())) {
+            /** @var ConnectionInterface */
+            $connection = $slave->getConnection();
+            $connection->removeAllListeners('close');
+            $connection->close();
+        }
+    }
+
+    /**
      * Check if all slaves have become available
      */
     protected function allSlavesReady(){
         if($this->status === self::STATE_STARTING || $this->status === self::STATE_EMERGENCY) {
             $readySlaves = $this->slaves->getByStatus(Slave::READY);
+            $busySlaves = $this->slaves->getByStatus(Slave::BUSY);
 
-            return count($readySlaves) === $this->slaveCount;
+            return count($readySlaves) + count($busySlaves) === $this->slaveCount;
         }
 
         return false;
@@ -462,30 +576,34 @@ class ProcessManager{
             return;
         }
 
+        $this->output->writeln("<info>Server is shutting down.</info>");
         $this->status = self::STATE_SHUTDOWN;
 
-        $this->output->writeln(
-            $graceful
-                ? '<info>Shutdown received, exiting.</info>'
-                : '<error>Termination received, exiting.</error>'
-        );
+        $remainingSlaves = $this->slaveCount;
 
-        // this method is also called during startup when something crashed, so
-        // make sure we don't operate on nulls.
-        if(!empty($this->controller)) {
-            @$this->controller->close();
-        }
-        if($this->loop instanceof LoopInterface) {
-            $this->loop->stop();
-        }
+        if($remainingSlaves === 0) {
+            // if for some reason there are no workers, the close callback won't do anything, so just quit.
+            $this->quit();
+        } else {
+            $this->closeSlaves($graceful, function($slave) use (&$remainingSlaves){
+                $this->terminateSlave($slave);
+                $remainingSlaves--;
 
-        foreach($this->slaves->getByStatus(Slave::ANY) as $slave) {
-            $this->terminateSlave($slave);
+                if($this->output->isVeryVerbose()) {
+                    $this->output->writeln(
+                        sprintf(
+                            'Worker #%d terminated, %d more worker(s) to close.',
+                            $slave->getPort(),
+                            $remainingSlaves
+                        )
+                    );
+                }
+
+                if($remainingSlaves === 0) {
+                    $this->quit();
+                }
+            });
         }
-        if(file_exists($this->pidfile)) {
-            unlink($this->pidfile);
-        }
-        exit;
     }
 
     /**
@@ -549,6 +667,20 @@ class ProcessManager{
     }
 
     /**
+     * @return int
+     */
+    public function getReloadTimeout(){
+        return $this->reloadTimeout;
+    }
+
+    /**
+     * @param int $reloadTimeout
+     */
+    public function setReloadTimeout($reloadTimeout){
+        $this->reloadTimeout = $reloadTimeout;
+    }
+
+    /**
      * Starts the main loop. Blocks.
      * @throws \InvalidArgumentException
      * @throws \ReflectionException
@@ -569,6 +701,9 @@ class ProcessManager{
         $this->loop = Factory::create();
         $this->controller = new Server($this->getControllerSocketPath(), $this->loop);
         $this->controller->on('connection', [$this, 'onSlaveConnection']);
+
+        $this->web = new Server(sprintf('%s:%d', $this->host, $this->port), $this->loop);
+        $this->web->on('connection', [$this, 'onRequest']);
 
         $pcntl = new PCNTL($this->loop);
         $pcntl->on(SIGTERM, [$this, 'shutdown']);
@@ -596,6 +731,20 @@ class ProcessManager{
     public function writePid(){
         $pid = getmypid();
         file_put_contents($this->pidfile, $pid);
+    }
+
+    /**
+     * Handles incoming connections from $this->port. Basically redirects to a slave.
+     *
+     * @param \React\Socket\ConnectionInterface $incoming incoming connection from react
+     * @throws \LogicException
+     * @throws \RuntimeException
+     */
+    public function onRequest(ConnectionInterface $incoming){
+        $this->handledRequests++;
+
+        $handler = new RequestHandler($this->socketPath, $this->loop, $this->output, $this->slaves);
+        $handler->handle($incoming);
     }
 
     /**
@@ -635,6 +784,9 @@ class ProcessManager{
             return;
         }
 
+        // remove slave from reload killer pool
+        unset($this->slavesToReload[$slave->getPort()]);
+
         // get status before terminating
         $status = $slave->getStatus();
         $port = $slave->getPort();
@@ -668,7 +820,7 @@ class ProcessManager{
      * @throws \Exception
      */
     public function createSlaves(){
-        for($i = 0; $i < $this->slaveCount; $i++) {
+        for($i = 1; $i <= $this->slaveCount; $i++) {
             $this->newSlaveInstance($this->host, $this->port + $i);
         }
     }
@@ -679,18 +831,82 @@ class ProcessManager{
      * @return void
      * @throws \Exception
      */
-    public function closeSlaves(){
-        foreach($this->slaves->getByStatus(Slave::ANY) as $slave) {
-            $slave->close();
-            $this->slaves->remove($slave);
+    public function closeSlaves($graceful = false, $onSlaveClosed = null){
+        if(!$onSlaveClosed) {
+            // create a default no-op if callable is undefined
+            $onSlaveClosed = function($slave){
+            };
+        }
 
-            if(!empty($slave->getConnection())) {
-                /** @var ConnectionInterface */
-                $connection = $slave->getConnection();
-                $connection->removeAllListeners('close');
-                $connection->close();
+        /*
+         * NB: we don't lock slave reload with a semaphore, since this could cause
+         * improper reloads when long reload timeouts and multiple code edits are combined.
+         */
+
+        $this->slavesToReload = [];
+
+        foreach($this->slaves->getByStatus(Slave::ANY) as $slave) {
+            /** @var Slave $slave */
+
+            /*
+             * Attach the callable to the connection close event, because locked workers are closed via RequestHandler.
+             * For now, we still need to call onClosed() in other circumstances as ProcessManager->closeSlave() removes
+             * all close handlers.
+             */
+            $connection = $slave->getConnection();
+
+            if($connection) {
+                // todo: connection has to be null-checked, because of race conditions with many workers. fixed in #366
+                $connection->on('close', function() use ($onSlaveClosed, $slave){
+                    $onSlaveClosed($slave);
+                });
+            }
+
+            if($graceful && $slave->getStatus() === Slave::BUSY) {
+                if($this->output->isVeryVerbose()) {
+                    $this->output->writeln(sprintf('Waiting for worker #%d to finish', $slave->getPort()));
+                }
+
+                $slave->lock();
+                $this->slavesToReload[$slave->getPort()] = $slave;
+            } elseif($graceful && $slave->getStatus() === Slave::LOCKED) {
+                if($this->output->isVeryVerbose()) {
+                    $this->output->writeln(
+                        sprintf(
+                            'Still waiting for worker #%d to finish from an earlier reload',
+                            $slave->getPort()
+                        )
+                    );
+                }
+                $this->slavesToReload[$slave->getPort()] = $slave;
+            } else {
+                $this->closeSlave($slave);
+                $onSlaveClosed($slave);
             }
         }
+
+        if($this->reloadTimeoutTimer !== null) {
+            $this->loop->cancelTimer($this->reloadTimeoutTimer);
+            unset($this->reloadTimeoutTimer);
+        }
+
+        $this->reloadTimeoutTimer = $this->loop->addTimer($this->reloadTimeout, function() use ($onSlaveClosed){
+            if($this->slavesToReload && $this->output->isVeryVerbose()) {
+                $this->output->writeln('Cleaning up workers that exceeded the graceful reload timeout.');
+            }
+
+            foreach($this->slavesToReload as $slave) {
+                $this->output->writeln(
+                    sprintf(
+                        '<error>Worker #%d exceeded the graceful reload timeout and was killed.</error>',
+                        $slave->getPort()
+                    )
+                );
+
+                $this->closeSlave($slave);
+                $onSlaveClosed($slave);
+            }
+        });
     }
 
     /**

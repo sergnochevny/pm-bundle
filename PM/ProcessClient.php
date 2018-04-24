@@ -59,6 +59,17 @@ class ProcessClient{
      * @param callable $callback
      * @throws \RuntimeException
      */
+    public function getStatus(callable $callback){
+        $this->request('status', [], function($result) use ($callback){
+            $callback(json_decode($result, true));
+        });
+        $this->loop->run();
+    }
+
+    /**
+     * @param callable $callback
+     * @throws \RuntimeException
+     */
     public function stopProcessManager(callable $callback){
         $this->request('stop', [], function($result) use ($callback){
             $callback(json_decode($result, true));

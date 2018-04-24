@@ -10,6 +10,7 @@ namespace Other\PmBundle\PM;
 use Evenement\EventEmitterInterface;
 use Other\PmBundle\Logger\SlaveLogger;
 use Other\PmBundle\Logger\StdLogger;
+use React\EventLoop\Factory;
 use ReactPCNTL\PCNTL;
 use Other\PmBundle\Bridge\RequestListener;
 use Psr\Http\Message\ResponseInterface;
@@ -114,6 +115,62 @@ class ProcessSlave{
     }
 
     /**
+     * Attempt a connection to the unix socket.
+     *
+     * @throws \RuntimeException
+     */
+    private function doConnect(){
+
+        $connector = new UnixConnector($this->loop);
+        $unixSocket = $this->getControllerSocketPath(false);
+
+        $connector->connect($unixSocket)->done(
+        /**
+         * @param $controller
+         */
+            function($controller){
+                $this->controller = $controller;
+                $this->logger = new SlaveLogger($controller);
+                $this->requestListener->getBridge()
+                    ->setDebug((bool)$this->isDebug())
+                    ->setLogger($this->logger);
+
+                $pcntl = new PCNTL($this->loop);
+                $pcntl->on(SIGTERM, [$this, 'shutdown']);
+                $pcntl->on(SIGINT, [$this, 'shutdown']);
+                register_shutdown_function([$this, 'shutdown']);
+
+                $this->bindProcessMessage($this->controller);
+                $this->controller->on('close', [$this, 'shutdown']);
+
+                $socketPath = $this->getSlaveSocketPath($this->config['host'], $this->config['port']);
+                $this->server = new Server($socketPath, $this->loop, $this->config);
+
+                $httpServer = new HttpServer([$this, 'onRequest'], $this->getMaxConcurrentRequests());
+                $httpServer->listen($this->server);
+
+                $this->sendMessage($this->controller, 'register', ['pid' => getmypid(), 'port' => $this->config['port']]);
+            }
+        );
+    }
+
+    /**
+     * Attempt a connection through the unix socket until it succeeds.
+     * This is a workaround for an issue where the (hardcoded) 1s socket timeout is triggered due to a busy socket.
+     */
+    private function tryConnect(){
+        try {
+            $this->doConnect();
+        } catch(\RuntimeException $ex) {
+            // Failed to connect to the controller, there was probably a timeout accessing the socket...
+            $this->loop->addTimer(1, function(){
+                $this->tryConnect();
+            });
+        }
+    }
+
+
+    /**
      * Bootstraps the actual application.
      *
      */
@@ -170,28 +227,6 @@ class ProcessSlave{
         } else {
             $logFunction(strlen(\RingCentral\Psr7\str($response)));
         }
-    }
-
-    /**
-     *
-     * @param string $affix
-     * @return string
-     */
-    protected function getSock($affix){
-
-        return $this->socketScheme . '://' . $affix;
-    }
-
-    /**
-     * @param $host
-     * @param int $port
-     *
-     * @return string
-     */
-    protected function getSlaveSocketPath($host, $port){
-        $affix = (!empty($host) ? $host . ':' : '') . $port;
-
-        return $this->getSock($affix);
     }
 
     /**
@@ -283,42 +318,12 @@ class ProcessSlave{
      * @throws \RuntimeException
      */
     public function run(){
+        $this->loop = Factory::create();
 
         $this->errorLogger = new BufferingLogger();
         ErrorHandler::register(new ErrorHandler($this->errorLogger));
 
-        $connector = new UnixConnector($this->loop);
-        $unixSocket = $this->getControllerSocketPath(false);
-
-        $connector->connect($unixSocket)->done(
-        /**
-         * @param $controller
-         */
-            function($controller){
-                $this->controller = $controller;
-                $this->logger = new SlaveLogger($controller);
-                $this->requestListener->getBridge()
-                    ->setDebug((bool)$this->isDebug())
-                    ->setLogger($this->logger);
-
-                $pcntl = new PCNTL($this->loop);
-                $pcntl->on(SIGTERM, [$this, 'shutdown']);
-                $pcntl->on(SIGINT, [$this, 'shutdown']);
-                register_shutdown_function([$this, 'shutdown']);
-
-                $this->bindProcessMessage($this->controller);
-                $this->controller->on('close', [$this, 'shutdown']);
-
-                $socketPath = $this->getSlaveSocketPath($this->config['host'], $this->config['port']);
-                $this->server = new Server($socketPath, $this->loop, $this->config);
-
-                $httpServer = new HttpServer([$this, 'onRequest'], $this->getMaxConcurrentRequests());
-                $httpServer->listen($this->server);
-
-                $this->sendMessage($this->controller, 'register', ['pid' => getmypid(), 'port' => $this->config['port']]);
-            }
-        );
-
+        $this->tryConnect();
         $this->loop->run();
     }
 
