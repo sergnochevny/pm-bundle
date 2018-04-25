@@ -94,7 +94,7 @@ class ProcessSlave{
      */
     protected $socketScheme = 'tcp';
 
-    protected $bootstrapReadyTimeout = 0.1;
+    protected $bootstrapReadyTimeout = 0.5;
 
     protected $maxConcurrentRequests = 0;
     /**
