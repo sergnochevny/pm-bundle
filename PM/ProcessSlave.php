@@ -185,7 +185,6 @@ class ProcessSlave{
      *
      */
     protected function bootstrap(){
-        usleep(500000);
         $this->sendMessage($this->controller, 'ready');
     }
 
@@ -343,6 +342,7 @@ class ProcessSlave{
      * @throws \Exception
      */
     public function commandBootstrap(array $data, ConnectionInterface $conn){
+        $this->logger->info('bootstrap');
         $this->bootstrap();
     }
 
