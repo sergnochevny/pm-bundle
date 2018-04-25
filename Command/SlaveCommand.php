@@ -24,11 +24,12 @@ class SlaveCommand extends ContainerAwareCommand{
 
     public function __construct(
         RequestListener $requestListener,
-        LoopInterface $loop
+        LoopInterface $loop,
+        string $name = null
     ){
         $this->requestListener = $requestListener;
         $this->loop = $loop;
-        parent::__construct();
+        parent::__construct($name);
     }
 
     /**

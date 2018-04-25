@@ -22,8 +22,7 @@ class StartCommand extends ContainerAwareCommand{
     protected function configure(){
         parent::configure();
 
-        $this
-            ->setName('pmb:start')
+        $this->setName('pmb:start')
             ->setDescription('Starts the server')
             ->addArgument('working-directory', InputArgument::OPTIONAL, 'Working directory', './');
 
