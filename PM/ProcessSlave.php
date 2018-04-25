@@ -93,6 +93,8 @@ class ProcessSlave{
      */
     protected $socketScheme = 'tcp';
 
+    protected $bootstrapReadyTimeout = 10;
+
     protected $maxConcurrentRequests = 0;
     /**
      * Current instance, used by global functions.
@@ -101,7 +103,7 @@ class ProcessSlave{
      */
     public static $slave;
 
-    public function __construct(LoopInterface $loop, RequestListener $requestListener, array $config = [], OutputInterface $output){
+        public function __construct(LoopInterface $loop, RequestListener $requestListener, array $config = [], OutputInterface $output){
 
         $this->loop = $loop;
         $this->output = $output;
@@ -191,7 +193,10 @@ class ProcessSlave{
      */
     protected function bootstrap(array $data, ConnectionInterface $conn){
         $this->logger->info('bootstrap');
-        $this->sendMessage($this->controller, 'ready');
+        $this->loop->addTimer($this->bootstrapReadyTimeout, function(){
+            $this->logger->info('ready send');
+            $this->sendMessage($this->controller, 'ready');
+        });
     }
 
     /**
