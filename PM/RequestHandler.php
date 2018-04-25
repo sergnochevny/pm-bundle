@@ -172,7 +172,7 @@ class RequestHandler{
         $connector = new Connector($this->loop);
         $connector = new TimeoutConnector($connector, $this->timeout, $this->loop);
 
-        $socketPath = $this->getSlaveSocketPath($this->slave->getPort());
+        $socketPath = $this->getSlaveSocketPath($this->slave->getHost(), $this->slave->getPort());
         $connector->connect($socketPath)->then(
             [$this, 'slaveConnected'],
             [$this, 'slaveConnectFailed']
