@@ -130,7 +130,16 @@ class ProcessSlave{
          */
             function($controller){
                 $this->controller = $controller;
-                $this->logger = new SlaveLogger($controller);
+//                $this->logger = new SlaveLogger($controller);
+
+                $this->logger = new StdLogger();
+
+                //Configure logger
+                $this->logger->setStdOutput($this->output);
+                if($this->output instanceof ConsoleOutputInterface) {
+                    $this->logger->setStdError($this->output->getErrorOutput());
+                }
+
                 $this->requestListener->getBridge()
                     ->setDebug((bool)$this->isDebug())
                     ->setLogger($this->logger);
@@ -144,6 +153,7 @@ class ProcessSlave{
                 $this->controller->on('close', [$this, 'shutdown']);
 
                 $socketPath = $this->getSlaveSocketPath($this->config['host'], $this->config['port']);
+                $this->logger->info($socketPath);
                 $this->server = new Server($socketPath, $this->loop, $this->config);
 
                 $httpServer = new HttpServer([$this, 'onRequest'], $this->getMaxConcurrentRequests());
