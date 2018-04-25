@@ -30,6 +30,7 @@ class ProcessSlave{
 
     use ProcessCommunicationTrait;
 
+    protected $useLogOverConnection = false;
     /**
      * The HTTP Server.
      *
@@ -103,7 +104,7 @@ class ProcessSlave{
      */
     public static $slave;
 
-        public function __construct(LoopInterface $loop, RequestListener $requestListener, array $config = [], OutputInterface $output){
+    public function __construct(LoopInterface $loop, RequestListener $requestListener, array $config = [], OutputInterface $output){
 
         $this->loop = $loop;
         $this->output = $output;
@@ -132,14 +133,14 @@ class ProcessSlave{
          */
             function($controller){
                 $this->controller = $controller;
-//                $this->logger = new SlaveLogger($controller);
-
-                $this->logger = new StdLogger();
-
-                //Configure logger
-                $this->logger->setStdOutput($this->output);
-                if($this->output instanceof ConsoleOutputInterface) {
-                    $this->logger->setStdError($this->output->getErrorOutput());
+                if($this->useLogOverConnection) {
+                    $this->logger = new SlaveLogger($controller);
+                } else {
+                    $this->logger = new StdLogger();
+                    $this->logger->setStdOutput($this->output);
+                    if($this->output instanceof ConsoleOutputInterface) {
+                        $this->logger->setStdError($this->output->getErrorOutput());
+                    }
                 }
 
                 $this->requestListener->getBridge()
@@ -155,15 +156,8 @@ class ProcessSlave{
                 $this->controller->on('close', [$this, 'shutdown']);
 
                 $socketPath = $this->getSlaveSocketPath($this->config['host'], $this->config['port'], true);
-                $this->logger->info($socketPath);
                 $this->server = new Server($socketPath, $this->loop, $this->config);
-
-                $this->logger->info('HttpServer');
-
                 $httpServer = new HttpServer([$this, 'onRequest'], $this->getMaxConcurrentRequests());
-
-                $this->logger->info('HttpServer->listen');
-
                 $httpServer->listen($this->server);
 
                 $this->sendMessage($this->controller, 'register', ['pid' => getmypid(), 'port' => $this->config['port']]);
