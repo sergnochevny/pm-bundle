@@ -79,7 +79,6 @@ class ProcessSlave{
      * Contains some configuration options.
      *
      * 'port' => int (server port)
-     * 'appenv' => string (App environment)
      * 'logging' => boolean (false) (If it should log all requests)
      * ...
      *

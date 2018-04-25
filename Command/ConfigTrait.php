@@ -22,7 +22,6 @@ trait ConfigTrait
             ->addOption('host', null, InputOption::VALUE_REQUIRED, 'Host. Default is 127.0.0.1', '127.0.0.1')
             ->addOption('port', null, InputOption::VALUE_REQUIRED, 'Port. Default is 5500', 5500)
             ->addOption('workers', null, InputOption::VALUE_REQUIRED, 'Worker count. Default is 8. Should be minimum equal to the number of CPU cores.', 8)
-            ->addOption('app-env', null, InputOption::VALUE_REQUIRED, 'The environment that your application will use to bootstrap (if any)', 'dev')
             ->addOption('debug', null, InputOption::VALUE_REQUIRED, 'Enable/Disable debugging so that your application is more verbose, enables also hot-code reloading. 1|0', 0)
             ->addOption('logging', null, InputOption::VALUE_REQUIRED, 'Enable/Disable http logging to stdout. 1|0', 1)
             ->addOption('max-requests', null, InputOption::VALUE_REQUIRED, 'Max requests per worker until it will be restarted', 1000)
@@ -93,7 +92,6 @@ trait ConfigTrait
         $config['host'] = $this->optionOrConfigValue($input, 'host', $config);
         $config['port'] = (int)$this->optionOrConfigValue($input, 'port', $config);
         $config['workers'] = (int)$this->optionOrConfigValue($input, 'workers', $config);
-        $config['app-env'] = $this->optionOrConfigValue($input, 'app-env', $config);
         $config['debug'] = $this->optionOrConfigValue($input, 'debug', $config);
         $config['logging'] = $this->optionOrConfigValue($input, 'logging', $config);
         $config['max-requests'] = (int)$this->optionOrConfigValue($input, 'max-requests', $config);

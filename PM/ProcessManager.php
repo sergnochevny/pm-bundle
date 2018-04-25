@@ -117,11 +117,6 @@ class ProcessManager{
     protected $appBootstrap;
 
     /**
-     * @var string|null
-     */
-    protected $appenv;
-
-    /**
      * @var bool
      */
     protected $debug = false;
@@ -212,7 +207,6 @@ class ProcessManager{
         $this->host = $config['host'];
         $this->port = $config['port'];
 
-        $this->setAppEnv($config['app-env']);
         $this->setDebug((boolean)$config['debug']);
         $this->setLogging((boolean)$config['logging']);
         $this->setMaxRequests($config['max-requests']);
@@ -618,20 +612,6 @@ class ProcessManager{
      */
     public function setPhpCgiExecutable($phpCgiExecutable){
         $this->phpCgiExecutable = $phpCgiExecutable;
-    }
-
-    /**
-     * @param string|null $appenv
-     */
-    public function setAppEnv($appenv){
-        $this->appenv = $appenv;
-    }
-
-    /**
-     * @return ?string
-     */
-    public function getAppEnv(){
-        return $this->appenv;
     }
 
     /**
