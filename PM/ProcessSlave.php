@@ -152,11 +152,16 @@ class ProcessSlave{
                 $this->bindProcessMessage($this->controller);
                 $this->controller->on('close', [$this, 'shutdown']);
 
-                $socketPath = $this->getSlaveSocketPath($this->config['host'], $this->config['port']);
+                $socketPath = $this->getSlaveSocketPath($this->config['host'], $this->config['port'], true);
                 $this->logger->info($socketPath);
                 $this->server = new Server($socketPath, $this->loop, $this->config);
 
+                $this->logger->info('HttpServer');
+
                 $httpServer = new HttpServer([$this, 'onRequest'], $this->getMaxConcurrentRequests());
+
+                $this->logger->info('HttpServer->listen');
+
                 $httpServer->listen($this->server);
 
                 $this->sendMessage($this->controller, 'register', ['pid' => getmypid(), 'port' => $this->config['port']]);
@@ -179,12 +184,13 @@ class ProcessSlave{
         }
     }
 
-
     /**
      * Bootstraps the actual application.
-     *
+     * @param array $data
+     * @param \React\Socket\ConnectionInterface $conn
      */
-    protected function bootstrap(){
+    protected function bootstrap(array $data, ConnectionInterface $conn){
+        $this->logger->info('bootstrap');
         $this->sendMessage($this->controller, 'ready');
     }
 
@@ -342,8 +348,7 @@ class ProcessSlave{
      * @throws \Exception
      */
     public function commandBootstrap(array $data, ConnectionInterface $conn){
-        $this->logger->info('bootstrap');
-        $this->bootstrap();
+        $this->bootstrap($data, $conn);
     }
 
     /**
