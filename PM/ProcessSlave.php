@@ -30,7 +30,7 @@ class ProcessSlave{
 
     use ProcessCommunicationTrait;
 
-    protected $useLogOverConnection = false;
+    protected $useLogOverConnection = true;
     /**
      * The HTTP Server.
      *
