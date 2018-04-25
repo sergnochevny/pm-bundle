@@ -185,9 +185,7 @@ class ProcessSlave{
      * @param \React\Socket\ConnectionInterface $conn
      */
     protected function bootstrap(array $data, ConnectionInterface $conn){
-        $this->logger->info('bootstrap');
         $this->loop->addTimer($this->bootstrapReadyTimeout, function(){
-            $this->logger->info('ready send');
             $this->sendMessage($this->controller, 'ready');
         });
     }
