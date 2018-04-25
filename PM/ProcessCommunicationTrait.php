@@ -96,14 +96,15 @@ trait ProcessCommunicationTrait{
     }
 
     /**
+     * @param $host
      * @param int $port
      *
      * @param bool $overwrite
      * @return string
      * @throws \RuntimeException
      */
-    protected function getSlaveSocketPath($port, $overwrite = false){
-        return $this->getSockFile($port, $overwrite);
+    protected function getSlaveSocketPath($host, $port, $overwrite = false){
+        return $this->getSockFile(sprintf('%s:%d', $host, $port), $overwrite);
     }
 
     /**
