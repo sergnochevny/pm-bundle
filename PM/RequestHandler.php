@@ -230,14 +230,14 @@ class RequestHandler{
             $this->slave->release();
 
             /** @var ConnectionInterface $connection */
-            $connection = $this->slave->getConnection();
+//            $connection = $this->slave->getConnection();
 
-            $maxRequests = $this->slave->getMaxRequests();
-            if($this->slave->getHandledRequests() >= $maxRequests) {
-                $this->slave->close();
-                $this->output->writeln(sprintf('Restart worker #%d because it reached max requests of %d', $this->slave->getPort(), $maxRequests));
-                $connection->close();
-            }
+//            $maxRequests = $this->slave->getMaxRequests();
+//            if($this->slave->getHandledRequests() >= $maxRequests) {
+//                $this->slave->close();
+//                $this->output->writeln(sprintf('Restart worker #%d because it reached max requests of %d', $this->slave->getPort(), $maxRequests));
+//                $connection->close();
+//            }
         }
     }
 
