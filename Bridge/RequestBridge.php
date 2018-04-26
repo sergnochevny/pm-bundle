@@ -161,8 +161,10 @@ class RequestBridge{
      *
      * @return self
      */
-    public function setLogger(LoggerInterface $logger): RequestBridge{
-        $this->logger = $logger;
+    public function setLogger($logger): RequestBridge{
+        if($this->logger instanceof LoggerInterface) {
+            $this->logger = $logger;
+        }
 
         return $this;
     }

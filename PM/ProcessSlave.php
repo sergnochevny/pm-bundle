@@ -30,7 +30,7 @@ class ProcessSlave{
 
     use ProcessCommunicationTrait;
 
-    protected $useLogOverConnection = true;
+    protected $useLogOverConnection = false;
     /**
      * The HTTP Server.
      *
@@ -109,7 +109,7 @@ class ProcessSlave{
         $this->output = $output;
         $this->requestListener = $requestListener;
 
-        $this->setMaxConcurrentRequests((int)$config['max-requests']);
+        $this->setMaxConcurrentRequests(intval(floor($config['max-requests'] / $config['workers'])));
         $this->setSocketPath($config['socket-path']);
         $this->setSocketScheme($config['socket-scheme']);
 
@@ -132,16 +132,17 @@ class ProcessSlave{
          */
             function($controller){
                 $this->controller = $controller;
-                if($this->useLogOverConnection) {
-                    $this->logger = new SlaveLogger($controller);
-                } else {
-                    $this->logger = new StdLogger();
-                    $this->logger->setStdOutput($this->output);
-                    if($this->output instanceof ConsoleOutputInterface) {
-                        $this->logger->setStdError($this->output->getErrorOutput());
+                if($this->isLogging()) {
+                    if($this->useLogOverConnection) {
+                        $this->logger = new SlaveLogger($controller);
+                    } else {
+                        $this->logger = new StdLogger();
+                        $this->logger->setStdOutput($this->output);
+                        if($this->output instanceof ConsoleOutputInterface) {
+                            $this->logger->setStdError($this->output->getErrorOutput());
+                        }
                     }
                 }
-
                 $this->requestListener->getBridge()
                     ->setDebug((bool)$this->isDebug())
                     ->setLogger($this->logger);
@@ -220,8 +221,9 @@ class ProcessSlave{
             } else {
                 $message = "<info>$message</info>";
             }
-
-            $this->logger->info($message);
+            if (!empty($this->logger)) {
+                $this->logger->info($message);
+            }
         };
 
         if($response->getBody() instanceof EventEmitterInterface) {
