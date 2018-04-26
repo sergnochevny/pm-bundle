@@ -10,6 +10,7 @@ namespace Other\PmBundle\PM;
 use Evenement\EventEmitterInterface;
 use Other\PmBundle\Logger\SlaveLogger;
 use Other\PmBundle\Logger\StdLogger;
+use Psr\Log\LoggerInterface;
 use React\EventLoop\Factory;
 use ReactPCNTL\PCNTL;
 use Other\PmBundle\Bridge\RequestListener;
@@ -198,6 +199,10 @@ class ProcessSlave{
      * @throws \InvalidArgumentException
      */
     protected function logResponse(ServerRequestInterface $request, ResponseInterface $response, $timeLocal){
+        if (!$this->logger instanceof LoggerInterface) {
+            return;
+        }
+
         $logFunction = function($size) use ($request, $response, $timeLocal){
             $requestString = $request->getMethod() . ' ' . $request->getUri()->getPath() . ' HTTP/' . $request->getProtocolVersion();
             $remoteIp = $request->getServerParams()['REMOTE_ADDR'];
@@ -221,9 +226,7 @@ class ProcessSlave{
             } else {
                 $message = "<info>$message</info>";
             }
-            if (!empty($this->logger)) {
-                $this->logger->info($message);
-            }
+            $this->logger->info($message);
         };
 
         if($response->getBody() instanceof EventEmitterInterface) {
