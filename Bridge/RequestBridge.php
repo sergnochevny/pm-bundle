@@ -157,7 +157,7 @@ class RequestBridge{
     /**
      * To register a logger into the bridge to register request summary and errors.
      *
-     * @param LoggerInterface $logger
+     * @param LoggerInterface|null $logger
      *
      * @return self
      */
