@@ -42,7 +42,7 @@ class HttpKernel implements BridgeInterface{
         $query = $psrRequest->getQueryParams();
 
         // cookies
-        $_COOKIE = [];
+        $g_cookies = [];
 
         foreach($psrRequest->getHeader('Cookie') as $cookieHeader) {
             $cookies = explode(';', $cookieHeader);
@@ -52,7 +52,7 @@ class HttpKernel implements BridgeInterface{
                     continue;
                 }
                 list($name, $value) = explode('=', trim($cookie));
-                $_COOKIE[$name] = $value;
+                $g_cookies[$name] = $value;
 
                 if($name === session_name()) {
                     session_id($value);
@@ -96,7 +96,7 @@ class HttpKernel implements BridgeInterface{
         $post = $psrRequest->getParsedBody() ?: [];
 
         /** @var SymfonyRequest $syRequest */
-        $syRequest = new SymfonyRequest($query, $post, $attributes = [], $_COOKIE, $uploadedFiles, $_SERVER, $psrRequest->getBody());
+        $syRequest = new SymfonyRequest($query, $post, $attributes = [], $g_cookies, $uploadedFiles, $_SERVER, $psrRequest->getBody());
         $syRequest->setMethod($method);
 
         return $syRequest;
