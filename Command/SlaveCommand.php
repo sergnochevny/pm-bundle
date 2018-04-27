@@ -5,32 +5,16 @@
 
 namespace Other\PmBundle\Command;
 
-use Other\PmBundle\Bridge\RequestListener;
-use function Other\PmBundle\pcntl_enabled;
 use Other\PmBundle\PM\ProcessSlave;
-use React\EventLoop\LoopInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
+use function Other\PmBundle\pcntl_enabled;
 
 class SlaveCommand extends ContainerAwareCommand{
 
-    protected $loop;
-    protected $requestListener;
-
     use ConfigTrait;
-
-    public function __construct(
-        RequestListener $requestListener,
-        LoopInterface $loop,
-        string $name = null
-    ){
-        $this->requestListener = $requestListener;
-        $this->loop = $loop;
-        parent::__construct($name);
-    }
 
     /**
      * {@inheritdoc}
@@ -56,15 +40,14 @@ class SlaveCommand extends ContainerAwareCommand{
      */
     protected function execute(InputInterface $input, OutputInterface $output){
 
-        if (!pcntl_enabled()) {
+        if(!pcntl_enabled()) {
             throw new \RuntimeException('Some of required pcntl functions are disabled. Check `disable_functions` setting in `php.ini`.');
         }
 
         $config = $this->initializeConfig($input, $output);
 
-//        $socketpath, $bridge, $bootstrap, $config
-
-        $handler = new ProcessSlave($this->loop, $this->requestListener, $config, $output);
+        $application = $this->getApplication();
+        $handler = new ProcessSlave($application->getKernel(), $config);
         $handler->run();
 
         return null;
