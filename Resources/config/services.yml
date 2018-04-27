@@ -1,40 +1,19 @@
 #src/Resources/config/services.yml
 parameters:
-  #Request bridge
-  other.pm-bundle.request_bridge.class: 'Other\PmBundle\Bridge\RequestBridge'
-  other.pm-bundle.request_listener.class: 'Other\PmBundle\Bridge\RequestListener'
 
   #Command controller
+  other.pm-bundle.command.reload.class: 'Other\PmBundle\Command\ReloadCommand'
   other.pm-bundle.command.start.class: 'Other\PmBundle\Command\StartCommand'
   other.pm-bundle.command.status.class: 'Other\PmBundle\Command\StatusCommand'
   other.pm-bundle.command.stop.class: 'Other\PmBundle\Command\StopCommand'
   other.pm-bundle.command.config.class: 'Other\PmBundle\Command\ConfigCommand'
   other.pm-bundle.command.slave.class: 'Other\PmBundle\Command\SlaveCommand'
 
-  #Vendors
-  other.pm-bundle.vendor.loop.class: 'React\EventLoop\LoopInterface'
-  other.pm-bundle.vendor.http_foundation_factory.class: 'Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory'
-  other.pm-bundle.vendor.diactoros_factory.class: 'Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory'
-
 services:
-  other.pm-bundle.request_bridge:
-    class: "%other.pm-bundle.request_bridge.class%"
-    arguments:
-      - "@kernel"
-      - "@other.pm-bundle.vendor.http_foundation_factory"
-      - "@other.pm-bundle.vendor.diactoros_factory"
-
-  other.pm-bundle.request_listener:
-    class: "%other.pm-bundle.request_listener.class%"
-    arguments:
-      - "@other.pm-bundle.request_bridge"
 
   #Command controller
   other.pm-bundle.command.slave:
     class: "%other.pm-bundle.command.slave.class%"
-    arguments:
-      - "@other.pm-bundle.request_listener"
-      - "@other.pm-bundle.vendor.loop"
     tags:
       - { name: console.command, command: pmb:slave }
   other.pm-bundle.command.start:
@@ -53,14 +32,7 @@ services:
     class: "%other.pm-bundle.command.config.class%"
     tags:
       - { name: console.command, command: pmb:config }
-
-  #Vendors
-  other.pm-bundle.vendor.loop:
-    class: "%other.pm-bundle.vendor.loop.class%"
-    factory: ['React\EventLoop\Factory', 'create']
-
-  other.pm-bundle.vendor.http_foundation_factory:
-    class: "%other.pm-bundle.vendor.http_foundation_factory.class%"
-
-  other.pm-bundle.vendor.diactoros_factory:
-    class: "%other.pm-bundle.vendor.diactoros_factory.class%"
+  other.pm-bundle.command.reload:
+    class: "%other.pm-bundle.command.reload.class%"
+    tags:
+      - { name: console.command, command: pmb:config }
