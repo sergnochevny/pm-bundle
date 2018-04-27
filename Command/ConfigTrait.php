@@ -65,6 +65,7 @@ trait ConfigTrait{
             $this->file,
             sprintf('%s/%s', dirname($GLOBALS['argv'][0]), $this->file)
         ];
+
         foreach($possiblePaths as $path) {
             if(file_exists($path)) {
                 return realpath($path);
@@ -97,6 +98,7 @@ trait ConfigTrait{
         $config['pidfile'] = $this->optionOrConfigValue($input, 'pidfile', $config);
         $config['reload-timeout'] = $this->optionOrConfigValue($input, 'reload-timeout', $config);
         $config['cgi-path'] = $this->optionOrConfigValue($input, 'cgi-path', $config);
+
         if(false === $config['cgi-path']) {
             //not set in config nor in command options -> autodetect path
             $executableFinder = new PhpExecutableFinder();
