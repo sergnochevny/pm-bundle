@@ -10,7 +10,7 @@ namespace Other\PmBundle\Logger;
 use Psr\Log\AbstractLogger;
 use React\Socket\ConnectionInterface;
 
-class SlaveLogger extends AbstractLogger{
+class ConnectionLogger extends AbstractLogger{
 
     /**
      * ProcessManager master process connection

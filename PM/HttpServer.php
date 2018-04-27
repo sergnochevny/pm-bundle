@@ -46,7 +46,7 @@ final class HttpServer extends EventEmitter{
 
         $middleware = [];
         $this->setMaxConcurrentRequests($maxConcurrentRequests);
-        $middleware[] = new LimitConcurrentRequestsMiddleware($this->getConcurrentRequestsLimit());
+//        $middleware[] = new LimitConcurrentRequestsMiddleware($this->getConcurrentRequestsLimit());
         $middleware[] = new RequestBodyBufferMiddleware();
         // Checking for an empty string because that is what a boolean
         // false is returned as by ini_get depending on the PHP version.

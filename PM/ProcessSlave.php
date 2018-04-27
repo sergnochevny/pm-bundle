@@ -8,22 +8,20 @@ declare(ticks=1);
 namespace Other\PmBundle\PM;
 
 use Evenement\EventEmitterInterface;
-use Other\PmBundle\Logger\SlaveLogger;
-use Other\PmBundle\Logger\StdLogger;
-use Psr\Log\LoggerInterface;
-use React\EventLoop\Factory;
-use ReactPCNTL\PCNTL;
-use Other\PmBundle\Bridge\RequestListener;
+use Other\PmBundle\Bridges\BridgeInterface;
+use function Other\PmBundle\console_log;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
+use React\Http\Response;
 use React\Promise\Promise;
 use React\Socket\ConnectionInterface;
-use React\Socket\Server;
 use React\Socket\ServerInterface;
 use React\Socket\UnixConnector;
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use React\Socket\UnixServer;
+use React\Stream\ReadableResourceStream;
+use ReactPCNTL\PCNTL;
 use Symfony\Component\Debug\BufferingLogger;
 use Symfony\Component\Debug\ErrorHandler;
 
@@ -31,37 +29,44 @@ class ProcessSlave{
 
     use ProcessCommunicationTrait;
 
-    protected $useLogOverConnection = false;
     /**
      * The HTTP Server.
      *
      * @var ServerInterface
      */
     protected $server;
-
-    /**
-     * @var \Other\PmBundle\Bridge\RequestListener
-     */
-    protected $requestListener;
     /**
      * @var LoopInterface
      */
     protected $loop;
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    protected $logger;
     /**
      * ProcessManager master process connection
      *
      * @var ConnectionInterface
      */
     protected $controller;
-
+    /**
+     * @var string
+     */
+    protected $bridgeName;
+    /**
+     * @var BridgeInterface
+     */
+    protected $bridge;
+    /**
+     * @var string
+     */
+    protected $appKernel;
+    /**
+     * @var string[]
+     */
+    protected $watchedFiles = [];
+    /**
+     * Contains the cached version of last sent files, for performance reasons
+     *
+     * @var array|null
+     */
+    protected $lastSentFiles;
     /**
      * @var bool
      */
@@ -75,11 +80,14 @@ class ProcessSlave{
      *
      * @var array
      */
+    protected $baseServer;
     protected $logFormat = '[$time_local] $remote_addr - $remote_user "$request" $status $bytes_sent "$http_referer"';
     /**
      * Contains some configuration options.
      *
      * 'port' => int (server port)
+     * 'appenv' => string (App environment)
+     * 'static-directory' => string (Static files root directory)
      * 'logging' => boolean (false) (If it should log all requests)
      * ...
      *
@@ -87,34 +95,16 @@ class ProcessSlave{
      */
     protected $config;
 
-    /**
-     * Socket scheme.
-     *
-     * @var string
-     */
-    protected $socketScheme = 'tcp';
+    public function __construct($socketpath, $bridgeName, $appKernel, array $config = []){
+        $this->setSocketPath($socketpath);
 
-    protected $bootstrapReadyTimeout = 0.5;
-
-    protected $maxConcurrentRequests = 0;
-    /**
-     * Current instance, used by global functions.
-     *
-     * @var ProcessSlave
-     */
-    public static $slave;
-
-    public function __construct(LoopInterface $loop, RequestListener $requestListener, array $config = [], OutputInterface $output){
-
-        $this->loop = $loop;
-        $this->output = $output;
-        $this->requestListener = $requestListener;
-
-        $this->setMaxConcurrentRequests(intval(floor($config['max-requests'] / $config['workers'])));
-        $this->setSocketPath($config['socket-path']);
-        $this->setSocketScheme($config['socket-scheme']);
-
+        $this->bridgeName = $bridgeName;
+        $this->appKernel = $appKernel;
         $this->config = $config;
+
+        if($this->config['session_path']) {
+            session_save_path($this->config['session_path']);
+        }
     }
 
     /**
@@ -123,30 +113,12 @@ class ProcessSlave{
      * @throws \RuntimeException
      */
     private function doConnect(){
-
         $connector = new UnixConnector($this->loop);
         $unixSocket = $this->getControllerSocketPath(false);
 
         $connector->connect($unixSocket)->done(
-        /**
-         * @param $controller
-         */
             function($controller){
                 $this->controller = $controller;
-                if($this->isLogging()) {
-                    if($this->useLogOverConnection) {
-                        $this->logger = new SlaveLogger($controller);
-                    } else {
-                        $this->logger = new StdLogger();
-                        $this->logger->setStdOutput($this->output);
-                        if($this->output instanceof ConsoleOutputInterface) {
-                            $this->logger->setStdError($this->output->getErrorOutput());
-                        }
-                    }
-                }
-                $this->requestListener->getBridge()
-                    ->setDebug((bool)$this->isDebug())
-                    ->setLogger($this->logger);
 
                 $pcntl = new PCNTL($this->loop);
                 $pcntl->on(SIGTERM, [$this, 'shutdown']);
@@ -156,12 +128,15 @@ class ProcessSlave{
                 $this->bindProcessMessage($this->controller);
                 $this->controller->on('close', [$this, 'shutdown']);
 
-                $socketPath = $this->getSlaveSocketPath($this->config['host'], $this->config['port'], true);
-                $this->server = new Server($socketPath, $this->loop, $this->config);
-                $httpServer = new HttpServer([$this, 'onRequest'], $this->getMaxConcurrentRequests());
+                // port is the slave identifier
+                $port = $this->config['port'];
+                $socketPath = $this->getSlaveSocketPath($port, true);
+                $this->server = new UnixServer($socketPath, $this->loop);
+
+                $httpServer = new HttpServer([$this, 'onRequest']);
                 $httpServer->listen($this->server);
 
-                $this->sendMessage($this->controller, 'register', ['pid' => getmypid(), 'port' => $this->config['port']]);
+                $this->sendMessage($this->controller, 'register', ['pid' => getmypid(), 'port' => $port]);
             }
         );
     }
@@ -182,39 +157,97 @@ class ProcessSlave{
     }
 
     /**
-     * Bootstraps the actual application.
-     * @param array $data
-     * @param \React\Socket\ConnectionInterface $conn
+     * @return BridgeInterface
      */
-    protected function bootstrap(array $data, ConnectionInterface $conn){
-        $this->loop->addTimer($this->bootstrapReadyTimeout, function(){
+    protected function getBridge(){
+        if(null === $this->bridge && $this->bridgeName) {
+            if(true === class_exists($this->bridgeName)) {
+                $bridgeClass = $this->bridgeName;
+            } else {
+                $bridgeClass = sprintf('Other\\PmBundle\\Bridges\\%s', ucfirst($this->bridgeName));
+            }
+
+            $this->bridge = new $bridgeClass;
+        }
+
+        return $this->bridge;
+    }
+
+    /**
+     * Bootstraps the actual application.
+     *
+     * @param $appKernel
+     */
+    protected function bootstrap($appKernel){
+        if($bridge = $this->getBridge()) {
+            $bridge->bootstrap($appKernel);
             $this->sendMessage($this->controller, 'ready');
-        });
+        }
+    }
+
+    /**
+     * Handle a redirected request from master.
+     *
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
+     */
+    protected function handleRequest(ServerRequestInterface $request){
+
+        if($bridge = $this->getBridge()) {
+            $response = $bridge->handle($request);
+        } else {
+            $response = new Response(404, [], 'No Bridge defined');
+        }
+
+        if(headers_sent()) {
+            //when a script sent headers the cgi process needs to die because the second request
+            //trying to send headers again will fail (headers already sent fatal). Its best to not even
+            //try to send headers because this break the whole approach of php-pm using php-cgi.
+            error_log(
+                'Headers have been sent, but not redirected to client. Force restart of a worker. ' .
+                'Make sure your application does not send headers on its own.'
+            );
+            $this->shutdown();
+        }
+
+        return $response;
     }
 
     /**
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @param string $timeLocal
+     * @param string $remoteIp
      * @throws \InvalidArgumentException
      */
-    protected function logResponse(ServerRequestInterface $request, ResponseInterface $response, $timeLocal){
-        if (!$this->logger instanceof LoggerInterface) {
-            return;
-        }
-
-        $logFunction = function($size) use ($request, $response, $timeLocal){
+    protected function logResponse(ServerRequestInterface $request, ResponseInterface $response, $timeLocal, $remoteIp){
+        $logFunction = function($size) use ($request, $response, $timeLocal, $remoteIp){
             $requestString = $request->getMethod() . ' ' . $request->getUri()->getPath() . ' HTTP/' . $request->getProtocolVersion();
-            $remoteIp = $request->getServerParams()['REMOTE_ADDR'];
             $statusCode = $response->getStatusCode();
+
+            if($statusCode < 400) {
+                $requestString = "<info>$requestString</info>";
+                $statusCode = "<info>$statusCode</info>";
+            }
 
             $message = str_replace(
                 [
-                    '$remote_addr', '$remote_user', '$time_local', '$request', '$status',
-                    '$bytes_sent', '$http_referer', '$http_user_agent',
+                    '$remote_addr',
+                    '$remote_user',
+                    '$time_local',
+                    '$request',
+                    '$status',
+                    '$bytes_sent',
+                    '$http_referer',
+                    '$http_user_agent',
                 ],
                 [
-                    $remoteIp, '-', $timeLocal, $requestString, $statusCode, $size,
+                    $remoteIp,
+                    '-', //todo remote_user
+                    $timeLocal,
+                    $requestString,
+                    $statusCode,
+                    $size,
                     $request->hasHeader('Referer') ? $request->getHeaderLine('Referer') : '-',
                     $request->hasHeader('User-Agent') ? $request->getHeaderLine('User-Agent') : '-'
                 ],
@@ -223,10 +256,9 @@ class ProcessSlave{
 
             if($response->getStatusCode() >= 400) {
                 $message = "<error>$message</error>";
-            } else {
-                $message = "<info>$message</info>";
             }
-            $this->logger->info($message);
+
+            $this->sendMessage($this->controller, 'log', ['message' => $message]);
         };
 
         if($response->getBody() instanceof EventEmitterInterface) {
@@ -242,22 +274,6 @@ class ProcessSlave{
             });
         } else {
             $logFunction(strlen(\RingCentral\Psr7\str($response)));
-        }
-    }
-
-    /**
-     * @return null
-     */
-    public function getMaxConcurrentRequests(){
-        return $this->maxConcurrentRequests;
-    }
-
-    /**
-     * @param int $maxConcurrentRequests
-     */
-    public function setMaxConcurrentRequests(int $maxConcurrentRequests = 0): void{
-        if(!empty($maxConcurrentRequests)) {
-            $this->maxConcurrentRequests = $maxConcurrentRequests;
         }
     }
 
@@ -316,13 +332,13 @@ class ProcessSlave{
 
         $this->inShutdown = true;
 
-        if(($this->controller instanceof ConnectionInterface) && $this->controller->isWritable()) {
+        if($this->controller && $this->controller->isWritable()) {
             $this->controller->close();
         }
-        if($this->server instanceof ServerInterface) {
+        if($this->server) {
             @$this->server->close();
         }
-        if($this->loop instanceof LoopInterface) {
+        if($this->loop) {
             @$this->loop->stop();
         }
 
@@ -330,8 +346,19 @@ class ProcessSlave{
     }
 
     /**
+     * Adds a file path to the watcher list queue which will be sent
+     * to the master process after each request.
+     *
+     * @param string $path
+     */
+    public function registerFile($path){
+        if($this->isDebug()) {
+            $this->watchedFiles[] = $path;
+        }
+    }
+
+    /**
      * Connects to ProcessManager, master process.
-     * @throws \RuntimeException
      */
     public function run(){
         $this->loop = Factory::create();
@@ -349,7 +376,7 @@ class ProcessSlave{
      * @throws \Exception
      */
     public function commandBootstrap(array $data, ConnectionInterface $conn){
-        $this->bootstrap($data, $conn);
+        $this->bootstrap($this->appKernel);
     }
 
     /**
@@ -363,16 +390,35 @@ class ProcessSlave{
     public function onRequest(ServerRequestInterface $request){
 
         $logTime = date('d/M/Y:H:i:s O');
-        $promise = $this->requestListener->handle($request)
-            ->then(function(ResponseInterface $response) use ($request, $logTime){
-                if($this->isLogging()) {
-                    $this->logResponse($request, $response, $logTime);
-                }
 
-                return $response;
-            });
+        $catchLog = function($e){
+            console_log((string)$e);
+
+            return new Response(500);
+        };
+
+        try {
+            $response = $this->handleRequest($request);
+        } catch(\Throwable $t) {
+            // PHP >= 7.0
+            $response = $catchLog($t);
+        } catch(\Exception $e) {
+            // PHP < 7.0
+            $response = $catchLog($e);
+        }
+
+        $promise = new Promise(function($resolve) use ($response){
+            return $resolve($response);
+        });
+
+        $promise = $promise->then(function(ResponseInterface $response) use ($request, $logTime, $remoteIp){
+            if($this->isLogging()) {
+                $this->logResponse($request, $response, $logTime, $remoteIp);
+            }
+
+            return $response;
+        });
 
         return $promise;
     }
-
 }

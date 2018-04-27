@@ -61,13 +61,6 @@ trait ProcessCommunicationTrait{
      * @return string
      * @throws \RuntimeException
      */
-    /**
-     *
-     * @param string $affix
-     * @param bool $overwrite
-     * @return string
-     * @throws \RuntimeException
-     */
     protected function getSockFile($affix, $overwrite){
         //since all commands set setcwd() we can make sure we are in the current application folder
 
@@ -96,15 +89,14 @@ trait ProcessCommunicationTrait{
     }
 
     /**
-     * @param $host
      * @param int $port
      *
      * @param bool $overwrite
      * @return string
      * @throws \RuntimeException
      */
-    protected function getSlaveSocketPath($host, $port, $overwrite = false){
-        return $this->getSockFile(sprintf('%s:%d', $host, $port), $overwrite);
+    protected function getSlaveSocketPath($port, $overwrite = false){
+        return $this->getSockFile($port, $overwrite);
     }
 
     /**
@@ -147,19 +139,5 @@ trait ProcessCommunicationTrait{
      */
     public function setSocketPath($socketPath){
         $this->socketPath = $socketPath;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSocketScheme(){
-        return $this->socketScheme;
-    }
-
-    /**
-     * @param $socketScheme
-     */
-    public function setSocketScheme($socketScheme){
-        $this->socketScheme = $socketScheme;
     }
 }

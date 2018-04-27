@@ -10,8 +10,8 @@ use React\Socket\ConnectionInterface;
 /**
  * SlavePool singleton is responsible for maintaining a pool of slave instances
  */
-class SlavePool{
-
+class SlavePool
+{
     /** @var Slave[] */
     private $slaves = [];
 
@@ -23,16 +23,16 @@ class SlavePool{
      * @param Slave $slave
      *
      * @return void
-     * @throws \Exception
      */
-    public function add(Slave $slave){
+    public function add(Slave $slave)
+    {
         $port = $slave->getPort();
 
-        if(isset($this->slaves[$port])) {
+        if (isset($this->slaves[$port])) {
             throw new \Exception("Slave port $port already occupied.");
         }
 
-        if($slave->getPort() !== $port) {
+        if ($slave->getPort() !== $port) {
             throw new \Exception("Slave mis-assigned.");
         }
 
@@ -45,9 +45,9 @@ class SlavePool{
      * @param Slave $slave
      *
      * @return void
-     * @throws \Exception
      */
-    public function remove(Slave $slave){
+    public function remove(Slave $slave)
+    {
         $port = $slave->getPort();
 
         // validate existence
@@ -62,10 +62,10 @@ class SlavePool{
      *
      * @param int $port
      * @return Slave
-     * @throws \Exception
      */
-    public function getByPort($port){
-        if(!isset($this->slaves[$port])) {
+    public function getByPort($port)
+    {
+        if (!isset($this->slaves[$port])) {
             throw new \Exception("Slave port $port empty.");
         }
 
@@ -80,26 +80,25 @@ class SlavePool{
      * @return mixed
      * @throws \Exception
      */
-    public function getByConnection(ConnectionInterface $connection){
+    public function getByConnection(ConnectionInterface $connection)
+    {
         $hash = spl_object_hash($connection);
 
-        foreach($this->slaves as $slave) {
-            if($hash === spl_object_hash($slave->getConnection())) {
+        foreach ($this->slaves as $slave) {
+            if ($slave->getConnection() && $hash === spl_object_hash($slave->getConnection())) {
                 return $slave;
             }
         }
+
         throw new \Exception("Slave connection not registered.");
     }
 
     /**
      * Get multiple slaves by status
      */
-    public function getByStatus($status){
-        return array_filter(
-            $this->slaves, function($slave) use ($status){
-            /**
-             * @var $slave Slave
-             */
+    public function getByStatus($status)
+    {
+        return array_filter($this->slaves, function ($slave) use ($status) {
             return $status === Slave::ANY || $status === $slave->getStatus();
         });
     }
@@ -124,5 +123,4 @@ class SlavePool{
             return count($this->getByStatus($state));
         }, $map);
     }
-
 }

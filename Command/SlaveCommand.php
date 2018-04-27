@@ -62,6 +62,8 @@ class SlaveCommand extends ContainerAwareCommand{
 
         $config = $this->initializeConfig($input, $output);
 
+//        $socketpath, $bridge, $bootstrap, $config
+
         $handler = new ProcessSlave($this->loop, $this->requestListener, $config, $output);
         $handler->run();
 

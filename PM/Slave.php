@@ -31,8 +31,6 @@ class Slave
 
     protected $socketPath;
 
-    protected $socketScheme;
-
     /**
      * Slave status
      *
@@ -44,8 +42,6 @@ class Slave
      * Slave port - this is an identifier mapped to a socket path
      */
     private $port;
-
-    private $host;
 
     private $process;
     private $pid;
@@ -65,9 +61,8 @@ class Slave
      */
     private $handledRequests = 0;
 
-    public function __construct($host, $port, $maxRequests)
+    public function __construct($port, $maxRequests)
     {
-        $this->host = $host;
         $this->port = $port;
         $this->maxRequests = $maxRequests;
 
@@ -91,7 +86,6 @@ class Slave
      * @param ConnectionInterface $connection
      *
      * @return void
-     * @throws \LogicException
      */
     public function register($pid, ConnectionInterface $connection)
     {
@@ -109,7 +103,6 @@ class Slave
      * Ready a slave after bootstrap completed
      *
      * @return void
-     * @throws \LogicException
      */
     public function ready()
     {
@@ -124,7 +117,6 @@ class Slave
      * Occupies a slave for request handling
      *
      * @return void
-     * @throws \LogicException
      */
     public function occupy()
     {
@@ -139,7 +131,6 @@ class Slave
      * Releases a slave from request handling
      *
      * @return void
-     * @throws \LogicException
      */
     public function release()
     {
@@ -171,7 +162,6 @@ class Slave
      * request gracefully as to not interrupt the response lifecycle.
      *
      * @return void
-     * @throws \LogicException
      */
     public function lock()
     {
@@ -200,15 +190,6 @@ class Slave
     public function getPort()
     {
         return $this->port;
-    }
-
-    /**
-     *
-     * @return string host
-     */
-    public function getHost()
-    {
-        return $this->host;
     }
 
     /**
@@ -290,7 +271,6 @@ class Slave
 
         return print_r([
             'status' => $status,
-            'host' => $this->host,
             'port' => $this->port,
             'pid' => $this->pid
         ], 1);
