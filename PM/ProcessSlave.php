@@ -86,8 +86,8 @@ class ProcessSlave{
         $this->appKernel = $appKernel;
         $this->config = $config;
 
-        if($this->config['session_path']) {
-            session_save_path($this->config['session_path']);
+        if($this->config['session-path']) {
+            session_save_path($this->config['session-path']);
         }
     }
 

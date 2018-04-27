@@ -27,6 +27,7 @@ trait ConfigTrait{
             ->addOption('max-requests', null, InputOption::VALUE_REQUIRED, 'Max requests per worker until it will be restarted', 1000)
             ->addOption('cgi-path', null, InputOption::VALUE_REQUIRED, 'Full path to the php-cgi executable', false)
             ->addOption('socket-path', null, InputOption::VALUE_REQUIRED, 'Path to a folder where socket files will be placed. Relative to working-directory or cwd()', '.ppm/run/')
+            ->addOption('session-path', null, InputOption::VALUE_REQUIRED, 'Path to a folder where session files will be placed. Relative to working-directory or cwd()', 'var/sessions')
             ->addOption('pidfile', null, InputOption::VALUE_REQUIRED, 'Path to a file where the pid of the master process is going to be stored', '.ppm/ppm.pid')
             ->addOption('reload-timeout', null, InputOption::VALUE_REQUIRED, 'The number of seconds to wait before force closing a worker during a reload, or -1 to disable. Default: 30', 30)
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Path to config file', '');
@@ -95,6 +96,7 @@ trait ConfigTrait{
         $config['logging'] = $this->optionOrConfigValue($input, 'logging', $config);
         $config['max-requests'] = (int)$this->optionOrConfigValue($input, 'max-requests', $config);
         $config['socket-path'] = $this->optionOrConfigValue($input, 'socket-path', $config);
+        $config['session-path'] = $this->optionOrConfigValue($input, 'session-path', $config);
         $config['pidfile'] = $this->optionOrConfigValue($input, 'pidfile', $config);
         $config['reload-timeout'] = $this->optionOrConfigValue($input, 'reload-timeout', $config);
         $config['cgi-path'] = $this->optionOrConfigValue($input, 'cgi-path', $config);
