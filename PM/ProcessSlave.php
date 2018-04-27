@@ -58,36 +58,19 @@ class ProcessSlave{
      */
     protected $appKernel;
     /**
-     * @var string[]
-     */
-    protected $watchedFiles = [];
-    /**
-     * Contains the cached version of last sent files, for performance reasons
-     *
-     * @var array|null
-     */
-    protected $lastSentFiles;
-    /**
      * @var bool
      */
     protected $inShutdown = false;
     /**
-     * @var \Symfony\Component\Debug\BufferingLogger
+     * @var BufferingLogger
      */
     protected $errorLogger;
-    /**
-     * Copy of $_SERVER during bootstrap.
-     *
-     * @var array
-     */
-    protected $baseServer;
+
     protected $logFormat = '[$time_local] $remote_addr - $remote_user "$request" $status $bytes_sent "$http_referer"';
     /**
      * Contains some configuration options.
      *
      * 'port' => int (server port)
-     * 'appenv' => string (App environment)
-     * 'static-directory' => string (Static files root directory)
      * 'logging' => boolean (false) (If it should log all requests)
      * ...
      *
@@ -95,10 +78,11 @@ class ProcessSlave{
      */
     protected $config;
 
-    public function __construct($socketpath, $bridgeName, $appKernel, array $config = []){
-        $this->setSocketPath($socketpath);
+    protected $bootstrapReadyTimeout = 0.5;
 
-        $this->bridgeName = $bridgeName;
+    public function __construct($appKernel, array $config = []){
+        $this->setSocketPath($config['socket-path']);
+        $this->bridgeName = $config['bridge-name'];
         $this->appKernel = $appKernel;
         $this->config = $config;
 
@@ -343,18 +327,6 @@ class ProcessSlave{
         }
 
         exit;
-    }
-
-    /**
-     * Adds a file path to the watcher list queue which will be sent
-     * to the master process after each request.
-     *
-     * @param string $path
-     */
-    public function registerFile($path){
-        if($this->isDebug()) {
-            $this->watchedFiles[] = $path;
-        }
     }
 
     /**

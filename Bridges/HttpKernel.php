@@ -5,8 +5,6 @@
 
 namespace Other\PmBundle\Bridges;
 
-use Other\PmBundle\Bootstraps\BootstrapInterface;
-use Other\PmBundle\Bootstraps\RequestClassProviderInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -26,11 +24,6 @@ class HttpKernel implements BridgeInterface{
      * @var \Symfony\Component\HttpKernel\HttpKernelInterface
      */
     protected $application;
-
-    /**
-     * @var BootstrapInterface
-     */
-    protected $bootstrap;
 
     /**
      * @var string[]
@@ -102,15 +95,8 @@ class HttpKernel implements BridgeInterface{
         // @todo check howto support other HTTP methods with bodies
         $post = $psrRequest->getParsedBody() ?: [];
 
-        if($this->bootstrap instanceof RequestClassProviderInterface) {
-            $class = $this->bootstrap->requestClass();
-        } else {
-            $class = SymfonyRequest::class;
-        }
-
         /** @var SymfonyRequest $syRequest */
-        $syRequest = new $class($query, $post, $attributes = [], $_COOKIE, $uploadedFiles, $_SERVER, $psrRequest->getBody());
-
+        $syRequest = new SymfonyRequest($query, $post, $attributes = [], $_COOKIE, $uploadedFiles, $_SERVER, $psrRequest->getBody());
         $syRequest->setMethod($method);
 
         return $syRequest;
@@ -247,6 +233,7 @@ class HttpKernel implements BridgeInterface{
 
     /**
      * {@inheritdoc}
+     * @throws \InvalidArgumentException
      */
     public function handle(ServerRequestInterface $request){
         if(null === $this->application) {
