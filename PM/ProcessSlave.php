@@ -82,7 +82,7 @@ class ProcessSlave{
 
     public function __construct($appKernel, array $config = []){
         $this->setSocketPath($config['socket-path']);
-        $this->bridgeName = $config['bridge-name'];
+        $this->bridgeName = $config['bridge'];
         $this->appKernel = $appKernel;
         $this->config = $config;
 
