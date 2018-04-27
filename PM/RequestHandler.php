@@ -11,58 +11,49 @@ use React\Socket\TimeoutConnector;
 use React\Socket\ConnectionInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class RequestHandler
-{
-    use ProcessCommunicationTrait;
+class RequestHandler{
 
-    /**
-     * @var float
-     */
-    protected $start;
+    use ProcessCommunicationTrait;
 
     /**
      * @var ConnectionInterface
      */
     private $incoming;
-
     /**
      * @var ConnectionInterface
      */
     private $connection;
-
     /**
      * @var LoopInterface
      */
     private $loop;
-
     /**
      * @var OutputInterface
      */
     private $output;
-
     /**
      * @var SlavePool
      */
     private $slaves;
-
     /**
      * Timeout in seconds for master to worker connection.
      *
      * @var int
      */
     private $timeout = 10;
-
     /**
      * @var Slave instance
      */
     private $slave;
-
     private $connectionOpen = true;
     private $redirectionTries = 0;
     private $incomingBuffer = '';
+    /**
+     * @var float
+     */
+    protected $start;
 
-    public function __construct($socketPath, LoopInterface $loop, OutputInterface $output, SlavePool $slaves)
-    {
+    public function __construct($socketPath, LoopInterface $loop, OutputInterface $output, SlavePool $slaves){
         $this->setSocketPath($socketPath);
 
         $this->loop = $loop;
@@ -71,16 +62,67 @@ class RequestHandler
     }
 
     /**
+     * Section timer. Measure execution time hand output if verbose mode.
+     *
+     * @param callable $callback
+     * @param bool $always Invoke callback regardless of execution time
+     */
+    protected function verboseTimer($callback, $always = false){
+        $took = microtime(true) - $this->start;
+        if(($always || $took > 1) && $this->output->isVeryVerbose()) {
+            $message = $callback($took);
+            $this->output->writeln($message);
+        }
+        $this->start = microtime(true);
+    }
+
+    /**
+     * Checks whether the end of the header is in $buffer.
+     *
+     * @param string $buffer
+     *
+     * @return bool
+     */
+    protected function isHeaderEnd($buffer){
+        return false !== strpos($buffer, "\r\n\r\n");
+    }
+
+    /**
+     * Replaces or injects header
+     *
+     * @param string $header
+     * @param string[] $headersToReplace
+     *
+     * @return string
+     */
+    protected function replaceHeader($header, $headersToReplace){
+        $result = $header;
+
+        foreach($headersToReplace as $key => $value) {
+            if(false !== $headerPosition = stripos($result, $key . ':')) {
+                // check how long the header is
+                $length = strpos(substr($header, $headerPosition), "\r\n");
+                $result = substr_replace($result, "$key: $value", $headerPosition, $length);
+            } else {
+                // $key is not in header yet, add it at the end
+                $end = strpos($result, "\r\n\r\n");
+                $result = substr_replace($result, "\r\n$key: $value", $end, 0);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Handle incoming client connection
      *
      * @param ConnectionInterface $incoming
      */
-    public function handle(ConnectionInterface $incoming)
-    {
+    public function handle(ConnectionInterface $incoming){
         $this->incoming = $incoming;
 
         $this->incoming->on('data', [$this, 'handleData']);
-        $this->incoming->on('close', function () {
+        $this->incoming->on('close', function(){
             $this->connectionOpen = false;
         });
 
@@ -94,12 +136,11 @@ class RequestHandler
      *
      * @param string $data
      */
-    public function handleData($data)
-    {
+    public function handleData($data){
         $this->incomingBuffer .= $data;
 
-        if ($this->connection && $this->isHeaderEnd($this->incomingBuffer)) {
-            $remoteAddress = (string) $this->incoming->getRemoteAddress();
+        if($this->connection && $this->isHeaderEnd($this->incomingBuffer)) {
+            $remoteAddress = (string)$this->incoming->getRemoteAddress();
             $headersToReplace = [
                 'X-PHP-PM-Remote-IP' => trim(parse_url($remoteAddress, PHP_URL_HOST), '[]'),
                 'X-PHP-PM-Remote-Port' => trim(parse_url($remoteAddress, PHP_URL_PORT), '[]')
@@ -117,11 +158,10 @@ class RequestHandler
      * Get next free slave from pool
      * Asynchronously keep trying until slave becomes available
      */
-    public function getNextSlave()
-    {
+    public function getNextSlave(){
         $available = $this->slaves->getByStatus(Slave::READY);
 
-        if (count($available)) {
+        if(count($available)) {
             // pick first slave
             $slave = array_shift($available);
 
@@ -137,19 +177,20 @@ class RequestHandler
      * Slave available handler
      *
      * @param Slave $slave available slave instance
+     * @throws \LogicException
+     * @throws \RuntimeException
      */
-    public function slaveAvailable(Slave $slave)
-    {
+    public function slaveAvailable(Slave $slave){
         $this->redirectionTries++;
 
         // client went away while waiting for worker
-        if (!$this->connectionOpen) {
+        if(!$this->connectionOpen) {
             return;
         }
 
         $this->slave = $slave;
 
-        $this->verboseTimer(function ($took) {
+        $this->verboseTimer(function($took){
             return sprintf('<info>took abnormal %.3f seconds for choosing next free worker</info>', $took);
         });
 
@@ -171,11 +212,10 @@ class RequestHandler
      *
      * @param ConnectionInterface $connection Slave connection
      */
-    public function slaveConnected(ConnectionInterface $connection)
-    {
+    public function slaveConnected(ConnectionInterface $connection){
         $this->connection = $connection;
 
-        $this->verboseTimer(function ($took) {
+        $this->verboseTimer(function($took){
             return sprintf('<info>Took abnormal %.3f seconds for connecting to worker %d</info>', $took, $this->slave->getPort());
         });
 
@@ -196,21 +236,21 @@ class RequestHandler
      * Handle slave disconnected
      *
      * Typically called after slave has finished handling request
+     * @throws \LogicException
      */
-    public function slaveClosed()
-    {
-        $this->verboseTimer(function ($took) {
+    public function slaveClosed(){
+        $this->verboseTimer(function($took){
             return sprintf('<info>Worker %d took abnormal %.3f seconds for handling a connection</info>', $this->slave->getPort(), $took);
         });
 
         $this->incoming->end();
 
-        if ($this->slave->getStatus() === Slave::LOCKED) {
+        if($this->slave->getStatus() === Slave::LOCKED) {
             // slave was locked, so mark as closed now.
             $this->slave->close();
             $this->output->writeln(sprintf('Marking locked worker #%d as closed', $this->slave->getPort()));
             $this->slave->getConnection()->close();
-        } elseif ($this->slave->getStatus() !== Slave::CLOSED) {
+        } elseif($this->slave->getStatus() !== Slave::CLOSED) {
             // if slave has already closed its connection to master,
             // it probably died and is already terminated
 
@@ -221,7 +261,7 @@ class RequestHandler
             $connection = $this->slave->getConnection();
 
             $maxRequests = $this->slave->getMaxRequests();
-            if ($this->slave->getHandledRequests() >= $maxRequests) {
+            if($this->slave->getHandledRequests() >= $maxRequests) {
                 $this->slave->close();
                 $this->output->writeln(sprintf('Restart worker #%d because it reached max requests of %d', $this->slave->getPort(), $maxRequests));
                 $connection->close();
@@ -238,12 +278,12 @@ class RequestHandler
      * worker list by the connection:close event.
      *
      * @param \Exception $e slave connection error
+     * @throws \LogicException
      */
-    public function slaveConnectFailed(\Exception $e)
-    {
+    public function slaveConnectFailed(\Exception $e){
         $this->slave->release();
 
-        $this->verboseTimer(function ($took) use ($e) {
+        $this->verboseTimer(function($took) use ($e){
             return sprintf(
                 '<error>Connection to worker %d failed. Try #%d, took %.3fs ' .
                 '(timeout %ds). Error message: [%d] %s</error>',
@@ -263,60 +303,5 @@ class RequestHandler
         // after 10th retry add 10ms delay, keep increasing until timeout
         $delay = min($this->timeout, floor($this->redirectionTries / 10) / 100);
         $this->loop->addTimer($delay, [$this, 'getNextSlave']);
-    }
-
-    /**
-     * Section timer. Measure execution time hand output if verbose mode.
-     *
-     * @param callable $callback
-     * @param bool $always Invoke callback regardless of execution time
-     */
-    protected function verboseTimer($callback, $always = false)
-    {
-        $took = microtime(true) - $this->start;
-        if (($always || $took > 1) && $this->output->isVeryVerbose()) {
-            $message = $callback($took);
-            $this->output->writeln($message);
-        }
-        $this->start = microtime(true);
-    }
-
-    /**
-     * Checks whether the end of the header is in $buffer.
-     *
-     * @param string $buffer
-     *
-     * @return bool
-     */
-    protected function isHeaderEnd($buffer)
-    {
-        return false !== strpos($buffer, "\r\n\r\n");
-    }
-
-    /**
-     * Replaces or injects header
-     *
-     * @param string   $header
-     * @param string[] $headersToReplace
-     *
-     * @return string
-     */
-    protected function replaceHeader($header, $headersToReplace)
-    {
-        $result = $header;
-
-        foreach ($headersToReplace as $key => $value) {
-            if (false !== $headerPosition = stripos($result, $key . ':')) {
-                // check how long the header is
-                $length = strpos(substr($header, $headerPosition), "\r\n");
-                $result = substr_replace($result, "$key: $value", $headerPosition, $length);
-            } else {
-                // $key is not in header yet, add it at the end
-                $end = strpos($result, "\r\n\r\n");
-                $result = substr_replace($result, "\r\n$key: $value", $end, 0);
-            }
-        }
-
-        return $result;
     }
 }

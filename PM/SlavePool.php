@@ -23,6 +23,7 @@ class SlavePool
      * @param Slave $slave
      *
      * @return void
+     * @throws \Exception
      */
     public function add(Slave $slave)
     {
@@ -45,6 +46,7 @@ class SlavePool
      * @param Slave $slave
      *
      * @return void
+     * @throws \Exception
      */
     public function remove(Slave $slave)
     {
@@ -62,6 +64,7 @@ class SlavePool
      *
      * @param int $port
      * @return Slave
+     * @throws \Exception
      */
     public function getByPort($port)
     {

@@ -8,8 +8,8 @@ namespace Other\PmBundle\PM;
 use React\Socket\ConnectionInterface;
 use React\ChildProcess\Process;
 
-class Slave
-{
+class Slave{
+
     /*
      * Slave state model
      *
@@ -22,47 +22,40 @@ class Slave
      */
 
     const ANY = 0;
-    const CREATED = 1;
-    const REGISTERED = 2;
-    const READY = 3;
     const BUSY = 4;
     const CLOSED = 5;
+    const CREATED = 1;
     const LOCKED = 6;
-
-    protected $socketPath;
-
+    const READY = 3;
+    const REGISTERED = 2;
     /**
      * Slave status
      *
      * @var int
      */
     private $status;
-
     /**
      * Slave port - this is an identifier mapped to a socket path
      */
     private $port;
-
     private $process;
     private $pid;
-    private $connection; // slave incoming
-
+    private $connection;
     /**
      * Maximum number of requests a slave can handle
      *
      * @var int
      */
-    private $maxRequests = 0;
-
+    private $maxRequests = 0; // slave incoming
     /**
      * Number of handled requests
      *
      * @var int
      */
     private $handledRequests = 0;
+    protected $socketPath;
 
-    public function __construct($port, $maxRequests)
-    {
+    public function __construct($port, $maxRequests){
         $this->port = $port;
         $this->maxRequests = $maxRequests;
 
@@ -74,8 +67,7 @@ class Slave
      *
      * @param Process $process
      */
-    public function attach(Process $process)
-    {
+    public function attach(Process $process){
         $this->process = $process;
     }
 
@@ -86,10 +78,10 @@ class Slave
      * @param ConnectionInterface $connection
      *
      * @return void
+     * @throws \LogicException
      */
-    public function register($pid, ConnectionInterface $connection)
-    {
-        if ($this->status !== self::CREATED) {
+    public function register($pid, ConnectionInterface $connection){
+        if($this->status !== self::CREATED) {
             throw new \LogicException('Cannot register a slave that is not in created state');
         }
 
@@ -103,10 +95,10 @@ class Slave
      * Ready a slave after bootstrap completed
      *
      * @return void
+     * @throws \LogicException
      */
-    public function ready()
-    {
-        if ($this->status !== self::REGISTERED) {
+    public function ready(){
+        if($this->status !== self::REGISTERED) {
             throw new \LogicException('Cannot ready a slave that is not in registered state');
         }
 
@@ -117,10 +109,10 @@ class Slave
      * Occupies a slave for request handling
      *
      * @return void
+     * @throws \LogicException
      */
-    public function occupy()
-    {
-        if ($this->status !== self::READY) {
+    public function occupy(){
+        if($this->status !== self::READY) {
             throw new \LogicException('Cannot occupy a slave that is not in ready state');
         }
 
@@ -131,10 +123,10 @@ class Slave
      * Releases a slave from request handling
      *
      * @return void
+     * @throws \LogicException
      */
-    public function release()
-    {
-        if ($this->status !== self::BUSY) {
+    public function release(){
+        if($this->status !== self::BUSY) {
             throw new \LogicException('Cannot release a slave that is not in busy state');
         }
 
@@ -150,8 +142,7 @@ class Slave
      *
      * @return void
      */
-    public function close()
-    {
+    public function close(){
         $this->status = self::CLOSED;
     }
 
@@ -162,10 +153,10 @@ class Slave
      * request gracefully as to not interrupt the response lifecycle.
      *
      * @return void
+     * @throws \LogicException
      */
-    public function lock()
-    {
-        if ($this->status !== self::BUSY) {
+    public function lock(){
+        if($this->status !== self::BUSY) {
             throw new \LogicException('Cannot lock a slave that is not in busy state');
         }
 
@@ -177,8 +168,7 @@ class Slave
      *
      * @return int status
      */
-    public function getStatus()
-    {
+    public function getStatus(){
         return $this->status;
     }
 
@@ -187,8 +177,7 @@ class Slave
      *
      * @return int port
      */
-    public function getPort()
-    {
+    public function getPort(){
         return $this->port;
     }
 
@@ -197,8 +186,7 @@ class Slave
      *
      * @return ConnectionInterface slave connection
      */
-    public function getConnection()
-    {
+    public function getConnection(){
         return $this->connection;
     }
 
@@ -207,8 +195,7 @@ class Slave
      *
      * @return int slave pid
      */
-    public function getPid()
-    {
+    public function getPid(){
         return $this->pid;
     }
 
@@ -217,8 +204,7 @@ class Slave
      *
      * @return Process slave process
      */
-    public function getProcess()
-    {
+    public function getProcess(){
         return $this->process;
     }
 
@@ -227,8 +213,7 @@ class Slave
      *
      * @return int handled requests
      */
-    public function getHandledRequests()
-    {
+    public function getHandledRequests(){
         return $this->handledRequests;
     }
 
@@ -237,8 +222,7 @@ class Slave
      *
      * @return int handled requests
      */
-    public function getMaxRequests()
-    {
+    public function getMaxRequests(){
         return $this->maxRequests;
     }
 
@@ -247,9 +231,8 @@ class Slave
      *
      * @return string
      */
-    public function __toString()
-    {
-        switch ($this->status) {
+    public function __toString(){
+        switch($this->status) {
             case self::CREATED:
                 $status = 'CREATED';
                 break;

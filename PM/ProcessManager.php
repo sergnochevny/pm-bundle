@@ -7,17 +7,18 @@ declare(ticks=1);
 
 namespace Other\PmBundle\PM;
 
+use React\ChildProcess\Process;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\Timer\TimerInterface;
-use React\Socket\Server;
-use React\Socket\UnixServer;
-use React\Socket\Connection;
-use React\Socket\ServerInterface;
 use React\Socket\ConnectionInterface;
-use React\ChildProcess\Process;
+use React\Socket\Server;
+use React\Socket\ServerInterface;
+use React\Socket\UnixServer;
+use ReactPCNTL\PCNTL;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Debug\Debug;
+use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\ProcessUtils;
 
 class ProcessManager{
@@ -97,11 +98,6 @@ class ProcessManager{
     protected $bridge;
 
     /**
-     * @var string
-     */
-    protected $appBootstrap;
-
-    /**
      * @var bool
      */
     protected $debug = false;
@@ -110,11 +106,6 @@ class ProcessManager{
      * @var bool
      */
     protected $logging = true;
-
-    /**
-     * @var string
-     */
-    protected $staticDirectory = '';
 
     /**
      * @var string
@@ -307,9 +298,9 @@ class ProcessManager{
 
     /**
      * A slave sent a `stop` command.
-     *
      * @param array $data
      * @param ConnectionInterface $conn
+     * @throws \LogicException
      */
     protected function commandStop(array $data, ConnectionInterface $conn){
         if($this->output->isVeryVerbose()) {
@@ -429,6 +420,7 @@ class ProcessManager{
      * Handles failed application bootstraps.
      *
      * @param int $port
+     * @throws \LogicException
      */
     protected function bootstrapFailed($port){
         if($this->isDebug()) {
@@ -467,9 +459,7 @@ class ProcessManager{
 
     /**
      * Close a slave
-     *
      * @param Slave $slave
-     *
      * @return void
      */
     protected function closeSlave($slave){
@@ -512,7 +502,7 @@ class ProcessManager{
         }
 
         if($this->output->isVeryVerbose()) {
-            $this->output->writeln(sprintf("Start new worker #%s %d", $host, $port));
+            $this->output->writeln(sprintf("Start new worker %d", $port));
         }
 
         $executableFinder = new PhpExecutableFinder();
@@ -557,6 +547,7 @@ class ProcessManager{
      * Handles termination signals, so we can gracefully stop all servers.
      *
      * @param bool $graceful If true, will wait for busy workers to finish.
+     * @throws \LogicException
      */
     public function shutdown($graceful = true){
         if($this->status === self::STATE_SHUTDOWN) {
@@ -683,9 +674,12 @@ class ProcessManager{
 
     /**
      * Starts the main loop. Blocks.
+     * @throws \Exception
      */
     public function run(){
-        Debug::enable();
+        if($this->isDebug() && class_exists(Debug::class)) {
+            Debug::enable();
+        }
 
         // make whatever is necessary to disable all stuff that could buffer output
         ini_set('zlib.output_compression', 0);
@@ -700,22 +694,16 @@ class ProcessManager{
         $this->web = new Server(sprintf('%s:%d', $this->host, $this->port), $this->loop);
         $this->web->on('connection', [$this, 'onRequest']);
 
-        $pcntl = new \MKraemer\ReactPCNTL\PCNTL($this->loop);
+        $pcntl = new PCNTL($this->loop);
         $pcntl->on(SIGTERM, [$this, 'shutdown']);
         $pcntl->on(SIGINT, [$this, 'shutdown']);
         $pcntl->on(SIGCHLD, [$this, 'handleSigchld']);
         $pcntl->on(SIGUSR1, [$this, 'restartSlaves']);
         $pcntl->on(SIGUSR2, [$this, 'reloadSlaves']);
 
-        if($this->isDebug()) {
-            $this->loop->addPeriodicTimer(0.5, function(){
-                $this->checkChangedFiles();
-            });
-        }
-
         $loopClass = (new \ReflectionClass($this->loop))->getShortName();
 
-        $this->output->writeln("<info>Starting PHP-PM with {$this->slaveCount} workers, using {$loopClass} ...</info>");
+        $this->output->writeln("<info>Starting PM with {$this->slaveCount} workers, using {$loopClass} ...</info>");
         $this->writePid();
 
         $this->createSlaves();
@@ -738,7 +726,7 @@ class ProcessManager{
     /**
      * Handles incoming connections from $this->port. Basically redirects to a slave.
      *
-     * @param Connection $incoming incoming connection from react
+     * @param \React\Socket\ConnectionInterface $incoming incoming connection from react
      */
     public function onRequest(ConnectionInterface $incoming){
         $this->handledRequests++;
@@ -764,6 +752,7 @@ class ProcessManager{
      *
      * @param ConnectionInterface $connection
      * @return void
+     * @throws \Exception
      */
     public function onSlaveClosed(ConnectionInterface $connection){
         if($this->status === self::STATE_SHUTDOWN) {
@@ -815,10 +804,11 @@ class ProcessManager{
      * Populate slave pool
      *
      * @return void
+     * @throws \Exception
      */
     public function createSlaves(){
         for($i = 1; $i <= $this->slaveCount; $i++) {
-            $this->newSlaveInstance(self::CONTROLLER_PORT + $i);
+            $this->newSlaveInstance($this->port + $i);
         }
     }
 
@@ -855,6 +845,7 @@ class ProcessManager{
      *
      * @param bool $graceful
      * @param callable $onSlaveClosed A closure that is called for each worker.
+     * @throws \LogicException
      */
     public function closeSlaves($graceful = false, $onSlaveClosed = null){
         if(!$onSlaveClosed) {
@@ -910,11 +901,9 @@ class ProcessManager{
             }
         }
 
-        $this->filesLastMTime = [];
-        $this->filesLastMd5 = [];
-
         if($this->reloadTimeoutTimer !== null) {
-            $this->reloadTimeoutTimer->cancel();
+            $this->loop->cancelTimer($this->reloadTimeoutTimer);
+            unset($this->reloadTimeoutTimer);
         }
 
         $this->reloadTimeoutTimer = $this->loop->addTimer($this->reloadTimeout, function() use ($onSlaveClosed){
@@ -944,7 +933,8 @@ class ProcessManager{
             return;
         }
 
-        $this->inRestart = true;
+        $this->inReload = true;
+        $this->output->writeln('Restarting all workers');
 
         $this->closeSlaves();
         $this->createSlaves();
