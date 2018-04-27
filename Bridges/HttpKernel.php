@@ -8,7 +8,9 @@ namespace Other\PmBundle\Bridges;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UploadedFileInterface;
+use Psr\Http\Message\UriInterface;
 use RingCentral\Psr7;
+use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\File\UploadedFile as SymfonyFile;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -42,17 +44,17 @@ class HttpKernel implements BridgeInterface{
         $query = $psrRequest->getQueryParams();
 
         // cookies
-        $g_cookies = [];
+        $cookies = [];
 
         foreach($psrRequest->getHeader('Cookie') as $cookieHeader) {
-            $cookies = explode(';', $cookieHeader);
+            $cookiesStrs = explode(';', $cookieHeader);
 
-            foreach($cookies as $cookie) {
+            foreach($cookiesStrs as $cookie) {
                 if(strpos($cookie, '=') == false) {
                     continue;
                 }
                 list($name, $value) = explode('=', trim($cookie));
-                $g_cookies[$name] = $value;
+                $cookies[$name] = $value;
 
                 if($name === session_name()) {
                     session_id($value);
@@ -95,9 +97,25 @@ class HttpKernel implements BridgeInterface{
         // @todo check howto support other HTTP methods with bodies
         $post = $psrRequest->getParsedBody() ?: [];
 
+        $server = array();
+        $uri = $psrRequest->getUri();
+
+        if ($uri instanceof UriInterface) {
+            $server['SERVER_NAME'] = $uri->getHost();
+            $server['SERVER_PORT'] = $uri->getPort();
+            $server['REQUEST_URI'] = $uri->getPath();
+            $server['QUERY_STRING'] = $uri->getQuery();
+        }
+
+        $server['REQUEST_METHOD'] = $psrRequest->getMethod();
+
+        $server = array_replace($server, $psrRequest->getServerParams());
+        $attributes = $psrRequest->getAttributes() ?: [];
+
         /** @var SymfonyRequest $syRequest */
-        $syRequest = new SymfonyRequest($query, $post, $attributes = [], $g_cookies, $uploadedFiles, $_SERVER, $psrRequest->getBody());
+        $syRequest = new SymfonyRequest($query, $post, $attributes , $cookies, $uploadedFiles, $server, $psrRequest->getBody());
         $syRequest->setMethod($method);
+        $syRequest->headers->replace($psrRequest->getHeaders());
 
         return $syRequest;
     }
