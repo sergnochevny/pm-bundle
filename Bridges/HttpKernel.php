@@ -5,12 +5,11 @@
 
 namespace Other\PmBundle\Bridges;
 
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\UriInterface;
 use RingCentral\Psr7;
-use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\File\UploadedFile as SymfonyFile;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -97,10 +96,10 @@ class HttpKernel implements BridgeInterface{
         // @todo check howto support other HTTP methods with bodies
         $post = $psrRequest->getParsedBody() ?: [];
 
-        $server = array();
+        $server = [];
         $uri = $psrRequest->getUri();
 
-        if ($uri instanceof UriInterface) {
+        if($uri instanceof UriInterface) {
             $server['SERVER_NAME'] = $uri->getHost();
             $server['SERVER_PORT'] = $uri->getPort();
             $server['REQUEST_URI'] = $uri->getPath();
@@ -113,7 +112,7 @@ class HttpKernel implements BridgeInterface{
         $attributes = $psrRequest->getAttributes() ?: [];
 
         /** @var SymfonyRequest $syRequest */
-        $syRequest = new SymfonyRequest($query, $post, $attributes , $cookies, $uploadedFiles, $server, $psrRequest->getBody());
+        $syRequest = new SymfonyRequest($query, $post, $attributes, $cookies, $uploadedFiles, $server, $psrRequest->getBody());
         $syRequest->setMethod($method);
         $syRequest->headers->replace($psrRequest->getHeaders());
 
