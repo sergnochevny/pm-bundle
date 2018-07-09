@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018. AIT
+ * Copyright (c) 2018. sn
  */
 
 namespace Other\PmBundle\Command;
